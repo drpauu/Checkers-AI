@@ -23,8 +23,8 @@ public class Game {
             @Override
             public void run() {
                 
-                IPlayer player1 = new HumanPlayer("Human");
-                IPlayer player2 = new OnePiecePlayer(1);
+                IPlayer player1 = new HumanPlayer("pau");
+                IPlayer player2 = new HumanPlayer("marta");
                 //IPlayer player1 = new RandomPlayer("Kamikaze 1");
                 //IPlayer player2 = new RandomPlayer("Kamikaze 2");
                                 
