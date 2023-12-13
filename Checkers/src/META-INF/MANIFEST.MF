@@ -1,0 +1,59 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.10.8
+Created-By: yGuard Bytecode Obfuscator 2.7.1
+
+Name: edu/upc/epsevg/prop/checkers/PlayerMove.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: Ou9eVrb8mZVzkaPfI/iodfrYGQc=
+MD5-Digest: XDFXIHlp2SVl9BvAlAB6qg==
+
+Name: edu/upc/epsevg/prop/checkers/PlayerType.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: kXTM2/2WH0DxxJb/jV25glr73Js=
+MD5-Digest: hvri4WhcE/DCrLXCv5uWRQ==
+
+Name: edu/upc/epsevg/prop/checkers/GameStatus.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: TfVcgslU5uLYMLKeW5PcudUzjXc=
+MD5-Digest: hKXLSXHqvOX/oRLM6UnDsQ==
+
+Name: edu/upc/epsevg/prop/checkers/PlayerType$1.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: 1R/R8vw4Rymo4kylLGCXXI1ZBiI=
+MD5-Digest: 1Ymmet9L6eKZ3XQib8WJ9A==
+
+Name: edu/upc/epsevg/prop/checkers/SearchType.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: 1SeHeEsDNAYKsp4ds3oH3u9OuIM=
+MD5-Digest: wofBCZP9BiAbdoR0d/XDIQ==
+
+Name: edu/upc/epsevg/prop/checkers/IPlayer.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: d10ZPLEjXWI/PtQOytAwCmqaHyw=
+MD5-Digest: QUWOuzJE86996TtmSXtPKQ==
+
+Name: edu/upc/epsevg/prop/checkers/MoveNode.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: kbbNaTFDDcX7QsbNHrA5Dzu1Dyo=
+MD5-Digest: qVPeEPz3HYXZ0q1clvspNQ==
+
+Name: edu/upc/epsevg/prop/checkers/IAuto.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: cYfWXrVdNrhm0EzUuL4D846kVyM=
+MD5-Digest: WX1KdtD2iy613QsmbJUIKg==
+
+Name: edu/upc/epsevg/prop/checkers/CellType.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: /gg60bXkNH/decjIi5XOm7KNGwc=
+MD5-Digest: YadW5bkhaxtyyvwIxz+EaQ==
+
+Name: edu/upc/epsevg/prop/checkers/GameStatus$1.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: x7L9jYVQnOBWEiynfcbRRazZ9HA=
+MD5-Digest: nnzhHWlC68sLM4fQuiarkg==
+
+Name: edu/upc/epsevg/prop/checkers/Level.class
+Digest-Algorithms: SHA-1, MD5
+SHA-1-Digest: te4Am3lSAq+Ssp8YUEDuzvlTW9g=
+MD5-Digest: p93TvUgbsH8kRe8doY3V+Q==
+

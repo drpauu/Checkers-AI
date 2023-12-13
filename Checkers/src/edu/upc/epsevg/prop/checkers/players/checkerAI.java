@@ -21,44 +21,53 @@ import java.util.Random;
  */
 public class checkerAI implements IPlayer, IAuto {
     private int depth;
+    private String name;
     private GameStatus s;
-    String name;
 
-    public checkerAI(String nom, int depth) {
-        name = nom;
-        // Initialize player with name and minimax depth
+    public checkerAI(String name, int depth) {
+        this.depth = depth;
+        this.name = name;
     }
 
     @Override
     public void timeout() {
-        // Handle timeout if necessary
+        // Nothing to do! I'm so fast, I never timeout 8-)
     }
 
+    /**
+     * Decideix el moviment del jugador donat un tauler i un color de peça que
+     * ha de posar.
+     *
+     * @param s Tauler i estat actual de joc.
+     * @return el moviment que fa el jugador.
+     */
     @Override
     public PlayerMove move(GameStatus s) {
-        this.s = s;
-        // Implement the minimax logic here
-        return findBestMove();
-    }
 
-    private PlayerMove findBestMove() {
-        // Use the minimax algorithm to find the best move
-        // Consider all possible moves and apply minimax to each
-        // Return the move with the highest score
-    }
 
-    private int minimax(GameStatus node, int depth, boolean isMaximizingPlayer) {
-        // Implement the minimax algorithm with depth and player perspective
-    }
+        List<MoveNode> moves =  s.getMoves();
 
-    private int evaluateBoard(GameStatus board) {
-        // Implement a heuristic evaluation of the board
+        Random rand = new Random();
+        int q = rand.nextInt(moves.size());
+        List<Point> points = new ArrayList<>();
+        MoveNode node = moves.get(q);
+        points.add(node.getPoint());
+        
+        while(!node.getChildren().isEmpty()) {
+            int c = rand.nextInt(node.getChildren().size());
+            node = node.getChildren().get(c);
+            points.add(node.getPoint());
+        }
+        return new PlayerMove( points, 0L, 0, SearchType.RANDOM);         
         
     }
 
+    /**
+     * Ens avisa que hem de parar la cerca en curs perquè s'ha exhaurit el temps
+     * de joc.
+     */
     @Override
     public String getName() {
-        
-        return "Minimax(" + name + ")";
+        return "checkerAI(" + name + ")";
     }
 }
