@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  * @author bernat
  */
 public class HeadlessGame {
-
+    
     private IPlayer players[];
     private GameStatus status;
     private int gameCount;
