@@ -8,9 +8,7 @@ import edu.upc.epsevg.prop.checkers.MoveNode;
 import edu.upc.epsevg.prop.checkers.PlayerMove;
 import edu.upc.epsevg.prop.checkers.SearchType;
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  *
@@ -18,9 +16,9 @@ import java.util.Random;
  */
 public class checkerAI implements IPlayer, IAuto {
     public int depth;
+    public int profunditat_actual;
     public String name;
     public GameStatus s;
-    List<Point> points = new ArrayList<>();
     // maximizingPlayer specifies which player the computer is playing for.
     public int maximizingPlayer;
     // default time limit
@@ -54,10 +52,134 @@ public class checkerAI implements IPlayer, IAuto {
     
     @Override
     public PlayerMove move(GameStatus gs) {
-        List<MoveNode> moves =  s.getMoves(); // agafa els possibles moviments
+        Date date = new Date();
+        startTime = date.getTime();
+        Random rand = new Random(); // per si hem d escollir un moviment random (init)
+        List<MoveNode> moviments_possibles =  s.getMoves(); // llista del possibles moviments
+        int bestMoveVal = 0;
+        int depthReached = 0;
+        MoveNode bestMove = null;
+        outOfTime = false;
+        List<MoveNode> millors_moviments;
         
-        return new PlayerMove( points, 0L, 0, SearchType.RANDOM);   
+        // en el cas que nomes hi hagi un moviment, fem el moviment
+        if(moviments_possibles.size() == 1){
+            List<Point> moviment = new ArrayList<>();
+            MoveNode node = moviments_possibles.get(0);
+            moviment.add(node.getPoint());
+            return new PlayerMove( moviment, 0L, depthReached, SearchType.MINIMAX_IDS);
+        }
+        
+         for (profunditat_actual = 0; profunditat_actual < depth && !outOfTime; profunditat_actual++) {
+            List<Point> moviment = new ArrayList<>();
+            millors_moviments = new ArrayList<>();
+            int bestVal = Integer.MIN_VALUE;
+            for (MoveNode i : moviments_possibles) {
+                GameStatus copia = new GameStatus(gs);
+                moviment.add(i.getPoint());
+                copia.movePiece(moviment);
+                int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+                if (outOfTime) break;
+                if (min == bestVal) {
+                    millors_moviments.add(i);
+                }
+                if (min > bestVal) {
+                    millors_moviments.clear();
+                    millors_moviments.add(i);
+                    bestVal = min;
+                }
+                if (bestVal == Integer.MAX_VALUE) break;
+            }
+            if (!outOfTime) {
+                int c = rand.nextInt(millors_moviments.size());
+                bestMove = millors_moviments.get(c);
+                depthReached = profunditat_actual;
+                bestMoveVal = bestVal;
+            }
+            if (bestMoveVal == Integer.MAX_VALUE) break;
+        }
+        
+        List<Point> moviment = new ArrayList<>();
+        MoveNode node = bestMove;
+        moviment.add(node.getPoint());
+        return new PlayerMove( moviment, 0L, depthReached, SearchType.MINIMAX_IDS);
     }
+    
+    // check if we've reached leaf nodes or maximum depth
+    public boolean cutoffTest(int numMoves, int profunditat) {
+        return numMoves == 0 || profunditat == this.depth;
+    }
+    
+    public int heuristica(GameStatus gs){
+        return 0;
+        /*int numRows = game.board.length;
+        int numCols = game.board[0].length;
+        int boardVal = 0;
+        int cntAllyPieces = 0;
+        int cntAllyKings = 0;
+        int cntOppPieces = 0;
+        int cntOppKings = 0;*/
+    }
+    
+    public int maxVal(GameStatus gameStatus, int alpha, int beta, int depth) {
+        // Check if ran out of time for search
+        long currentTime = System.currentTimeMillis();
+        if ((currentTime - startTime) >= timeLimit * 990) {
+            outOfTime = true;
+            return 0;
+        }
+
+        // Actual max algorithm
+        List<MoveNode> listLegalMoves = gameStatus.getMoves();
+        if (cutoffTest(listLegalMoves.size(), depth)) {
+            return heuristica(gameStatus);
+        }
+
+        int v = Integer.MIN_VALUE;
+        for (MoveNode moveNode : listLegalMoves) {
+            // Apply move to the copy of the game status
+            List<Point> moviment = new ArrayList<>();
+            GameStatus copia = new GameStatus(gameStatus);
+            moviment.add(moveNode.getPoint());
+            copia.movePiece(moviment);
+
+            v = Math.max(v, minVal(copia, alpha, beta, depth + 1));
+            if (v >= beta) return v;
+            alpha = Math.max(alpha, v);
+        }
+        return v;
+    }
+
+    
+    public int minVal(GameStatus gameStatus, int alpha, int beta, int depth) {
+        // Check if ran out of time for search
+        long currentTime = System.currentTimeMillis();
+        if ((currentTime - startTime) > timeLimit * 990) {
+            outOfTime = true;
+            return 0;
+        }
+
+        // Actual min algorithm
+        List<MoveNode> listLegalMoves = gameStatus.getMoves();
+        if (cutoffTest(listLegalMoves.size(), depth)) {
+            return heuristica(gameStatus);
+        }
+
+        int v = Integer.MAX_VALUE;
+        for (MoveNode moveNode : listLegalMoves) {
+            // Apply move to the copy of the game status
+            List<Point> moviment = new ArrayList<>();
+            GameStatus copia = new GameStatus(gameStatus);
+            moviment.add(moveNode.getPoint());
+            copia.movePiece(moviment);
+
+            v = Math.min(v, maxVal(copia, alpha, beta, depth + 1));
+            if (v <= alpha) return v;
+            beta = Math.min(beta, v);
+        }
+        return v;
+    }
+
 
         
     /**
