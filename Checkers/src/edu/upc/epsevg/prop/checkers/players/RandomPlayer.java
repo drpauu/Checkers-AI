@@ -43,19 +43,15 @@ public class RandomPlayer implements IPlayer, IAuto {
 
         List<MoveNode> moves =  s.getMoves();
         
-        
-        Random rand = new Random();
-        int q = rand.nextInt(moves.size());
         List<Point> points = new ArrayList<>();
-        MoveNode node = moves.get(q);
-        points.add(node.getPoint());
-        
-        while(!node.getChildren().isEmpty()) {
-            int c = rand.nextInt(node.getChildren().size());
-            node = node.getChildren().get(c);
+        MoveNode node = moves.get(1);
             points.add(node.getPoint());
-        }
-        return new PlayerMove( points, 0L, 0, SearchType.RANDOM);         
+
+            while(!node.getChildren().isEmpty()) {
+                node = node.getChildren().get(1);
+                points.add(node.getPoint());
+            }
+            return new PlayerMove( points, 0L, 0, SearchType.RANDOM);        
         
     }
 

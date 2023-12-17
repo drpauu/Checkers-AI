@@ -50,64 +50,48 @@ public class checkerAI implements IPlayer, IAuto {
 
     
 /**
-     * Decideix el points del jugador donat un tauler i un color de peça que
+     * Decideix el moviment del jugador donat un tauler i un color de peça que
      * ha de posar.
      *
-     * @param s Tauler i estat actual de joc.
-     * @return el points que fa el jugador.
+     * @param gs Tauler i estat actual de joc.
+     * @return el moviment que fa el jugador.
      */
-    /*
-    @Override
-    public PlayerMove move(GameStatus s) {
-
-
-        List<MoveNode> moves =  s.getMoves();
-        
-        List<Point> points = new ArrayList<>();
-        MoveNode node = moves.get(0);
-        points.add(node.getPoint());
-        
-        while(!node.getChildren().isEmpty()) {
-            node = node.getChildren().get(node.getChildren().size()-1);
-            points.add(node.getPoint());
-        }
-        return new PlayerMove( points, 0L, 0, SearchType.RANDOM);         
-        
-    }
-    */
+    
     @Override
     public PlayerMove move(GameStatus gs) {
         Date date = new Date();
         startTime = date.getTime();
         getBoardStatus(gs);
-        Random rand = new Random(); // per si hem d escollir un points random (init)
-        List<MoveNode> moviments_possibles =  s.getMoves(); // llista del possibles moviments
+        Random rand = new Random(); // per si hem d escollir un moviment random (init)
+        List<MoveNode> moviments_possibles =  gs.getMoves(); // llista del possibles moviments
         int bestMoveVal = 0;
         int depthReached = 0;
         MoveNode bestMove = null;
         outOfTime = false;
         List<MoveNode> millors_moviments;
         
-        // en el cas que nomes hi hagi un points, fem el points
-        if(true){
-            List<Point> points = new ArrayList<>();
+        // en el cas que nomes hi hagi un moviment, fem el moviment
+        if(moviments_possibles.size() == 1){
+            List<Point> moviment = new ArrayList<>();
             MoveNode node = moviments_possibles.get(0);
-            points.add(node.getPoint());
+            moviment.add(node.getPoint());
+            int i = 0;
             while(!node.getChildren().isEmpty()) {
-                node = node.getChildren().get(node.getChildren().size()-1);
-                points.add(node.getPoint());
-            }
-            return new PlayerMove( points, 0L, depthReached, SearchType.MINIMAX_IDS);
+                node = node.getChildren().get(i);
+                moviment.add(node.getPoint());
+                i++;
+            } 
+            return new PlayerMove( moviment, 0L, depthReached, SearchType.MINIMAX_IDS);
         }
         
         for (profunditat_actual = 0; profunditat_actual < depth && !outOfTime; profunditat_actual++) {
-            List<Point> points = new ArrayList<>();
+            List<Point> moviment = new ArrayList<>();
             millors_moviments = new ArrayList<>();
             int bestVal = Integer.MIN_VALUE;
             for (MoveNode i : moviments_possibles) {
                 GameStatus copia = new GameStatus(gs);
-                points.add(i.getPoint());
-                copia.movePiece(points);
+                moviment.add(i.getPoint());
+                copia.movePiece(moviment);
                 int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
                 if (outOfTime) break;
                 if (min == bestVal) {
@@ -129,15 +113,16 @@ public class checkerAI implements IPlayer, IAuto {
             if (bestMoveVal == Integer.MAX_VALUE) break;
         }
         
-        List<Point> points = new ArrayList<>();
+        List<Point> moviment = new ArrayList<>();
         MoveNode node = bestMove;
-        points.add(node.getPoint());
+        moviment.add(node.getPoint());
+        int i = 0;
         while(!node.getChildren().isEmpty()) {
-            int c = rand.nextInt(node.getChildren().size());
-            node = node.getChildren().get(c);
-            points.add(node.getPoint());
-        }
-        return new PlayerMove( points, 0L, depthReached, SearchType.MINIMAX_IDS);
+            node = node.getChildren().get(i);
+            moviment.add(node.getPoint());
+            i++;
+        } 
+        return new PlayerMove( moviment, 0L, depthReached, SearchType.MINIMAX_IDS);
     }
     
     // check if we've reached leaf nodes or maximum depth
@@ -240,10 +225,10 @@ public class checkerAI implements IPlayer, IAuto {
         int v = Integer.MIN_VALUE;
         for (MoveNode moveNode : listLegalMoves) {
             // Apply move to the copy of the game status
-            List<Point> points = new ArrayList<>();
+            List<Point> moviment = new ArrayList<>();
             GameStatus copia = new GameStatus(gameStatus);
-            points.add(moveNode.getPoint());
-            copia.movePiece(points);
+            moviment.add(moveNode.getPoint());
+            copia.movePiece(moviment);
 
             v = Math.max(v, minVal(copia, alpha, beta, depth + 1));
             if (v >= beta) return v;
@@ -270,10 +255,10 @@ public class checkerAI implements IPlayer, IAuto {
         int v = Integer.MAX_VALUE;
         for (MoveNode moveNode : listLegalMoves) {
             // Apply move to the copy of the game status
-            List<Point> points = new ArrayList<>();
+            List<Point> moviment = new ArrayList<>();
             GameStatus copia = new GameStatus(gameStatus);
-            points.add(moveNode.getPoint());
-            copia.movePiece(points);
+            moviment.add(moveNode.getPoint());
+            copia.movePiece(moviment);
 
             v = Math.min(v, maxVal(copia, alpha, beta, depth + 1));
             if (v <= alpha) return v;
