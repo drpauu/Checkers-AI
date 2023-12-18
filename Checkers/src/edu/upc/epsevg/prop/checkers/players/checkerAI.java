@@ -96,13 +96,13 @@ public class checkerAI implements IPlayer, IAuto {
             int bestVal = Integer.MIN_VALUE;
             for(MoveNode move : peces){
                 int i = 0;
-                while(!move.getChildren().isEmpty()) {
+                while(i < move.getChildren().size()) {
                     GameStatus copia = new GameStatus(gs);
                     List<Point> path = new ArrayList<>();
                     path.add(move.getPoint());
                     MoveNode node = move.getChildren().get(i);
-                    path.add(node.getPoint());
                     i++;
+                    path.add(node.getPoint());
                     copia.movePiece(path);
                     int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
                     if (min == bestVal) {
@@ -134,7 +134,7 @@ public class checkerAI implements IPlayer, IAuto {
         for(int i = 0; i < movimientos.size(); i++){
             MoveNode node = movimientos.get(i);
             int j = 0;
-            while(!node.getChildren().isEmpty()) {
+            while(j < node.getChildren().size()) {
                 node = node.getChildren().get(j);
                 moviment.add(node);
                 j++;
@@ -227,60 +227,48 @@ public class checkerAI implements IPlayer, IAuto {
     }
     
     public int maxVal(GameStatus gameStatus, int alpha, int beta, int depth) {
-        // Check if ran out of time for search
-        long currentTime = System.currentTimeMillis();
-        if ((currentTime - startTime) >= timeLimit * 990) {
-            outOfTime = true;
-            return 0;
-        }
-
-        // Actual max algorithm
-        List<MoveNode> listLegalMoves = gameStatus.getMoves();
-        if (cutoffTest(listLegalMoves.size(), depth)) {
-            return heuristica(gameStatus);
-        }
-
         int v = Integer.MIN_VALUE;
-        for (MoveNode moveNode : listLegalMoves) {
-            // Apply move to the copy of the game status
-            List<Point> moviment = new ArrayList<>();
-            GameStatus copia = new GameStatus(gameStatus);
-            moviment.add(moveNode.getPoint());
-            copia.movePiece(moviment);
+        for (MoveNode move : gameStatus.getMoves()) {
+            int i = 0;
+            while(i < move.getChildren().size()) {
+                // Apply move to the copy of the game status
+                List<Point> path = new ArrayList<>();
+                MoveNode node = move.getChildren().get(i);
+                i++;
+                GameStatus copia = new GameStatus(gameStatus);
+                path.add(move.getPoint());
+                path.add(node.getPoint());
+                copia.movePiece(path);
 
-            v = Math.max(v, minVal(copia, alpha, beta, depth + 1));
-            if (v >= beta) return v;
-            alpha = Math.max(alpha, v);
+                v = Math.min(v, maxVal(copia, alpha, beta, depth + 1));
+                if (v >= alpha) return v;
+                beta = Math.min(beta, v);
+                
+            }
         }
         return v;
     }
 
     
     public int minVal(GameStatus gameStatus, int alpha, int beta, int depth) {
-        // Check if ran out of time for search
-        long currentTime = System.currentTimeMillis();
-        if ((currentTime - startTime) > timeLimit * 990) {
-            outOfTime = true;
-            return 0;
-        }
-
-        // Actual min algorithm
-        List<MoveNode> listLegalMoves = gameStatus.getMoves();
-        if (cutoffTest(listLegalMoves.size(), depth)) {
-            return heuristica(gameStatus);
-        }
-
         int v = Integer.MAX_VALUE;
-        for (MoveNode moveNode : listLegalMoves) {
-            // Apply move to the copy of the game status
-            List<Point> moviment = new ArrayList<>();
-            GameStatus copia = new GameStatus(gameStatus);
-            moviment.add(moveNode.getPoint());
-            copia.movePiece(moviment);
+        for (MoveNode move : gameStatus.getMoves()) {
+            int i = 0;
+            while(i < move.getChildren().size()) {
+                // Apply move to the copy of the game status
+                List<Point> path = new ArrayList<>();
+                MoveNode node = move.getChildren().get(i);
+                i++;
+                GameStatus copia = new GameStatus(gameStatus);
+                path.add(move.getPoint());
+                path.add(node.getPoint());
+                copia.movePiece(path);
 
-            v = Math.min(v, maxVal(copia, alpha, beta, depth + 1));
-            if (v <= alpha) return v;
-            beta = Math.min(beta, v);
+                v = Math.min(v, maxVal(copia, alpha, beta, depth + 1));
+                if (v <= alpha) return v;
+                beta = Math.min(beta, v);
+                
+            }
         }
         return v;
     }
@@ -340,45 +328,6 @@ public class checkerAI implements IPlayer, IAuto {
         return 0;
     }
     
-    private void getBoardStatus(GameStatus gs){
-        int numRows = 8;
-        int numCols = 8;
-        int cntAllyPieces = 0;
-        int cntAllyKings = 0;
-        int cntOppPieces = 0;
-        int cntOppKings = 0;
-        
-        for (int i = 0; i < numRows; i++) {
-            for (int j = 0; j < numCols; j++) {
-                // Assuming there's a method in GameStatus to get the piece type at a given position
-                CellType peca = gs.getPos(i, j);
-                PlayerType jugador = gs.getCurrentPlayer();
-                if(jugador == PlayerType.PLAYER1){
-                    switch (peca) {
-                        case P1:
-                            cntAllyPieces++;
-                        case P2:
-                            cntOppPieces++;
-                        case P1Q:
-                            cntAllyKings++;
-                        case P2Q:
-                            cntOppKings++;
-                    }
-                } else {
-                    switch (peca) {
-                        case P2:
-                            cntAllyPieces++;
-                        case P1:
-                            cntOppPieces++;
-                        case P2Q:
-                            cntAllyKings++;
-                        case P1Q:
-                            cntOppKings++;
-                    }
-                }
-            }
-        }
-    }
         
     /**
      * Ens avisa que hem de parar la cerca en curs perquè s'ha exhaurit el temps
