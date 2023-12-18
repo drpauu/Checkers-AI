@@ -22,7 +22,7 @@ import java.util.*;
  */
 public class checkerAI implements IPlayer, IAuto {
     public int depth;
-    public int profunditat_actual;
+    public int profunditat_actual = 0;
     public String name;
     public GameStatus s;
     // maximizingPlayer specifies which player the computer is playing for.
@@ -59,70 +59,88 @@ public class checkerAI implements IPlayer, IAuto {
     
     @Override
     public PlayerMove move(GameStatus gs) {
+        
+        // mirar el temps
         Date date = new Date();
         startTime = date.getTime();
-        getBoardStatus(gs);
-        Random rand = new Random(); // per si hem d escollir un moviment random (init)
-        List<MoveNode> moviments_possibles =  gs.getMoves(); // llista del possibles moviments
-        int bestMoveVal = 0;
-        int depthReached = 0;
-        MoveNode bestMove = null;
+        
+        // init de les coses
+        //getBoardStatus(gs);
+        
+        //init per si no ens queda temps
+        //Random rand = new Random(); // per si hem d escollir un moviment random (init)
+        
+        // init de les llistes
+        List<MoveNode> peces =  gs.getMoves();
+        List<MoveNode> millors_moviments = new ArrayList<>();
+        List <MoveNode> moviments = llista_moves(peces);
+        
+        // init de les variables
         outOfTime = false;
-        List<MoveNode> millors_moviments;
         
         // en el cas que nomes hi hagi un moviment, fem el moviment
-        if(moviments_possibles.size() == 1){
-            List<Point> moviment = new ArrayList<>();
-            MoveNode node = moviments_possibles.get(0);
-            moviment.add(node.getPoint());
+        if(moviments.size() == 1){
+            List<Point> path = new ArrayList<>();
+            MoveNode node = peces.get(0);
+            path.add(node.getPoint());
             int i = 0;
             while(!node.getChildren().isEmpty()) {
                 node = node.getChildren().get(i);
-                moviment.add(node.getPoint());
+                path.add(node.getPoint());
                 i++;
             } 
-            return new PlayerMove( moviment, 0L, depthReached, SearchType.MINIMAX_IDS);
+            return new PlayerMove( path, 0L, profunditat_actual, SearchType.MINIMAX_IDS);
         }
-        
-        for (profunditat_actual = 0; profunditat_actual < depth && !outOfTime; profunditat_actual++) {
-            List<Point> moviment = new ArrayList<>();
+        for (profunditat_actual = 0; profunditat_actual < depth && !outOfTime; profunditat_actual++){
             millors_moviments = new ArrayList<>();
             int bestVal = Integer.MIN_VALUE;
-            for (MoveNode i : moviments_possibles) {
-                GameStatus copia = new GameStatus(gs);
-                moviment.add(i.getPoint());
-                copia.movePiece(moviment);
-                int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
-                if (outOfTime) break;
-                if (min == bestVal) {
-                    millors_moviments.add(i);
+            for(MoveNode move : peces){
+                int i = 0;
+                while(!move.getChildren().isEmpty()) {
+                    GameStatus copia = new GameStatus(gs);
+                    List<Point> path = new ArrayList<>();
+                    path.add(move.getPoint());
+                    MoveNode node = move.getChildren().get(i);
+                    path.add(node.getPoint());
+                    i++;
+                    copia.movePiece(path);
+                    int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+                    if (min == bestVal) {
+                        millors_moviments.add(move);
+                        millors_moviments.add(node);
+                    }
+                    if (min > bestVal) {
+                        millors_moviments.clear();
+                        millors_moviments.add(move);
+                        millors_moviments.add(node);
+                        bestVal = min;
+                    }
+                    if (bestVal == Integer.MAX_VALUE) break; // jo que se, per si hi ha algun cas extrem
                 }
-                if (min > bestVal) {
-                    millors_moviments.clear();
-                    millors_moviments.add(i);
-                    bestVal = min;
-                }
-                if (bestVal == Integer.MAX_VALUE) break;
             }
-            if (!outOfTime) {
-                int c = rand.nextInt(millors_moviments.size());
-                bestMove = millors_moviments.get(c);
-                depthReached = profunditat_actual;
-                bestMoveVal = bestVal;
-            }
-            if (bestMoveVal == Integer.MAX_VALUE) break;
         }
         
-        List<Point> moviment = new ArrayList<>();
-        MoveNode node = bestMove;
-        moviment.add(node.getPoint());
-        int i = 0;
-        while(!node.getChildren().isEmpty()) {
-            node = node.getChildren().get(i);
-            moviment.add(node.getPoint());
-            i++;
-        } 
-        return new PlayerMove( moviment, 0L, depthReached, SearchType.MINIMAX_IDS);
+        List<Point> path = new ArrayList<>();
+        path.add(millors_moviments.get(0).getPoint());
+        path.add(millors_moviments.get(1).getPoint());
+        
+        return new PlayerMove(path, 0L, profunditat_actual, SearchType.MINIMAX_IDS);
+    }
+    
+    
+    // retorna una llista de moviments (que es poden fer) amb les llista de peces que li has donat 
+    public List<MoveNode> llista_moves(List<MoveNode> movimientos){
+        List<MoveNode> moviment = new ArrayList<>();
+        for(int i = 0; i < movimientos.size(); i++){
+            MoveNode node = movimientos.get(i);
+            int j = 0;
+            while(!node.getChildren().isEmpty()) {
+                node = node.getChildren().get(j);
+                moviment.add(node);
+                j++;
+            } 
+        }
+        return moviment;
     }
     
     // check if we've reached leaf nodes or maximum depth
