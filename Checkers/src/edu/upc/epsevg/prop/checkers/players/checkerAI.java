@@ -104,6 +104,10 @@ public class checkerAI implements IPlayer, IAuto {
                     i++;
                     path.add(node.getPoint());
                     copia.movePiece(path);
+                    
+                    //System.out.println(copia.toString());
+                    
+                    //System.out.println(gs.toString());
                     int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
                     if (min == bestVal) {
                         millors_moviments.add(move);
@@ -234,16 +238,15 @@ public class checkerAI implements IPlayer, IAuto {
                 // Apply move to the copy of the game status
                 List<Point> path = new ArrayList<>();
                 MoveNode node = move.getChildren().get(i);
-                i++;
                 GameStatus copia = new GameStatus(gameStatus);
                 path.add(move.getPoint());
                 path.add(node.getPoint());
                 copia.movePiece(path);
 
-                v = Math.min(v, maxVal(copia, alpha, beta, depth + 1));
+                v = Math.max(v, minVal(copia, alpha, beta, depth + 1));
                 if (v >= alpha) return v;
-                beta = Math.min(beta, v);
-                
+                beta = Math.max(beta, v);
+                i++;
             }
         }
         return v;
@@ -258,16 +261,15 @@ public class checkerAI implements IPlayer, IAuto {
                 // Apply move to the copy of the game status
                 List<Point> path = new ArrayList<>();
                 MoveNode node = move.getChildren().get(i);
-                i++;
                 GameStatus copia = new GameStatus(gameStatus);
                 path.add(move.getPoint());
                 path.add(node.getPoint());
                 copia.movePiece(path);
-
+                
                 v = Math.min(v, maxVal(copia, alpha, beta, depth + 1));
                 if (v <= alpha) return v;
                 beta = Math.min(beta, v);
-                
+                i++;
             }
         }
         return v;

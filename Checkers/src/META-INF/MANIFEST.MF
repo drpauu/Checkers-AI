@@ -14,8 +14,8 @@ MD5-Digest: hvri4WhcE/DCrLXCv5uWRQ==
 
 Name: edu/upc/epsevg/prop/checkers/GameStatus.class
 Digest-Algorithms: SHA-1, MD5
-SHA-1-Digest: TfVcgslU5uLYMLKeW5PcudUzjXc=
-MD5-Digest: hKXLSXHqvOX/oRLM6UnDsQ==
+SHA-1-Digest: a7IKwjWPfvfyynp7H/a0GKJqcpA=
+MD5-Digest: PhSo3oV60MwYV6L4sAKasQ==
 
 Name: edu/upc/epsevg/prop/checkers/PlayerType$1.class
 Digest-Algorithms: SHA-1, MD5
