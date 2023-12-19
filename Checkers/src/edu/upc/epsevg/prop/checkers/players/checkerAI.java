@@ -72,8 +72,8 @@ public class checkerAI implements IPlayer, IAuto {
         
         // init de les llistes
         List<MoveNode> peces =  gs.getMoves();
-        List<MoveNode> millors_moviments = new ArrayList<>();
-        List <MoveNode> moviments = llista_moves(peces);
+        List<List<Point>> moviments = llista_moves(peces);
+        List<Point> bestMove = new ArrayList<>();
         
         // init de les variables
         outOfTime = false;
@@ -86,67 +86,55 @@ public class checkerAI implements IPlayer, IAuto {
             List<Point> path = new ArrayList<>();
             MoveNode node = peces.get(0);
             path.add(node.getPoint());
-            int i = 0;
             node = node.getChildren().get(0);
             path.add(node.getPoint());
             return new PlayerMove( path, 0L, profunditat_actual, SearchType.MINIMAX_IDS);
         }
-        for (profunditat_actual = 0; profunditat_actual < depth && !outOfTime; profunditat_actual++){
-            millors_moviments = new ArrayList<>();
+        for (profunditat_actual = 0; profunditat_actual < depth; profunditat_actual++){
             int bestVal = Integer.MIN_VALUE;
-            for(MoveNode move : peces){
-                for(int i = 0; i < move.getChildren().size(); i++)  {
-                    GameStatus copia = new GameStatus(gs);
-                    List<Point> path = new ArrayList<>();
-                    MoveNode node = move.getChildren().get(i);
-                    path.add(0, move.getPoint());
-                    path.add(1, node.getPoint());
-                    copia.movePiece(path);
-                    
-                    //System.out.println(copia.toString());
-                    
-                    //System.out.println(gs.toString());
-                    int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    if (min == bestVal) {
-                        millors_moviments.add(0, move);
-                        millors_moviments.add(1, node);
-                    }
-                    if (min > bestVal) {
-                        millors_moviments.clear();
-                        millors_moviments.add(0, move);
-                        millors_moviments.add(1, node);
-                        bestVal = min;
-                    }
+            List<Point> move;
+            for (int i = 0; i < moviments.size(); i++) {
+                move = moviments.get(i);
+                GameStatus copia = new GameStatus(gs);
+                copia.movePiece(move);
+
+                //System.out.println(copia.toString());
+
+                //System.out.println(gs.toString());
+                int min = heuristica(copia);
+                if (min == bestVal) {
+                    bestMove = move;
+                }
+                if (min > bestVal) {
+                    bestMove = move;
+                    bestVal = min;
                 }
             }
         }
         
-        List<Point> path = new ArrayList<>();
-        path.add(millors_moviments.get(0).getPoint());
-        path.add(millors_moviments.get(1).getPoint());
         
-        return new PlayerMove(path, 0L, profunditat_actual, SearchType.MINIMAX_IDS);
+        return new PlayerMove(bestMove, 0L, profunditat_actual, SearchType.MINIMAX_IDS);
     }
     
     
     // retorna una llista de moviments (que es poden fer) amb les llista de peces que li has donat 
-    public List<MoveNode> llista_moves(List<MoveNode> movimientos){
-        List<MoveNode> moviment = new ArrayList<>();
-        for(int i = 0; i < movimientos.size(); i++){
-            MoveNode node = movimientos.get(i);
+    public List<List<Point>> llista_moves(List<MoveNode> movimientos){
+        List<List<Point>> moviment = new ArrayList<>();
+        int i = 0;
+        for(MoveNode move : movimientos){
             int j = 0;
-            while(j < node.getChildren().size()) {
-                node = node.getChildren().get(j);
-                moviment.add(node);
+            while(j < move.getChildren().size()) {
+                List<Point> path = new ArrayList<>();
+                
+                MoveNode node = move.getChildren().get(j);
+                path.add(move.getPoint());
+                path.add(node.getPoint());
+                moviment.add(path);
                 j++;
             } 
+            i++;
         }
         return moviment;
-    }
-    
-    // check if we've reached leaf nodes or maximum depth
-    public boolean cutoffTest(int numMoves, int profunditat) {
-        return numMoves == 0 || profunditat == this.depth;
     }
     
     public int heuristica(GameStatus gs){
@@ -227,47 +215,39 @@ public class checkerAI implements IPlayer, IAuto {
         return boardVal;
     }
     
-    public int maxVal(GameStatus gameStatus, int alpha, int beta) {
+    public int maxVal(GameStatus gameStatus, int alpha, int beta, int depth) {
+        List<List<Point>> moviments = llista_moves(gameStatus.getMoves());
+        if(moviments.isEmpty() || depth == this.depth){
+            return heuristica(gameStatus);
+        }
         int v = Integer.MIN_VALUE;
-        for (MoveNode move : gameStatus.getMoves()) {
-            for(int i = 0; i < move.getChildren().size()-1; i++) {
-                System.out.println("fill: " + i);
-                // Apply move to the copy of the game status
-                List<Point> path = new ArrayList<>();
-                MoveNode node = move.getChildren().get(i);
-                GameStatus copia = new GameStatus(gameStatus);
-                
-                path.add(0, move.getPoint());
-                path.add(1, node.getPoint());
-                copia.movePiece(path);
+        for (List<Point> move : moviments) {
+            // Apply move to the copy of the game status
+            GameStatus copia = new GameStatus(gameStatus);
+            copia.movePiece(move);
 
-                v = Math.max(v, minVal(copia, alpha, beta));
-                if (v >= beta) return v;
-                alpha = Math.max(alpha, v);
-            }
+            v = Math.max(v, minVal(copia, alpha, beta, depth + 1));
+            if (v >= beta) return v;
+            alpha = Math.max(alpha, v);
         }
         return v;
     }
 
     
-    public int minVal(GameStatus gameStatus, int alpha, int beta) {
+    public int minVal(GameStatus gameStatus, int alpha, int beta, int depth) {
+        List<List<Point>> moviments = llista_moves(gameStatus.getMoves());
+        if(moviments.isEmpty()|| depth == this.depth){
+            return heuristica(gameStatus);
+        }
         int v = Integer.MAX_VALUE;
-        for (MoveNode move : gameStatus.getMoves()) {
-            for(int i = 0; i < move.getChildren().size()-1; i++) {
-                // Apply move to the copy of the game status
-                List<Point> path = new ArrayList<>();
-                
-                MoveNode node = move.getChildren().get(i);
-                GameStatus copia = new GameStatus(gameStatus);
-                               
-                path.add(0, move.getPoint());
-                path.add(1, node.getPoint());
-                copia.movePiece(path);
-                
-                v = Math.min(v, maxVal(copia, alpha, beta));
-                if (v <= alpha) return v;
-                beta = Math.min(beta, v);
-            }
+        for (List<Point> move : moviments) {
+            // Apply move to the copy of the game status
+            GameStatus copia = new GameStatus(gameStatus);
+            copia.movePiece(move);
+
+            v = Math.min(v, maxVal(copia, alpha, beta, depth + 1));
+            if (v <= alpha) return v;
+            beta = Math.min(beta, v);
         }
         return v;
     }
