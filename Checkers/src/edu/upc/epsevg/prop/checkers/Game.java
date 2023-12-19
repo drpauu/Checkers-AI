@@ -27,9 +27,9 @@ public class Game {
                 
                 //IPlayer player1 = new OnePiecePlayer(3);
                 //IPlayer player1 = new HumanPlayer("pau");
-                IPlayer player2 = new checkerAI("codi", 4, 2);
+                //IPlayer player2 = new checkerAI("codi", 4, 2);
                 IPlayer player1 = new RandomPlayer("Kamikaze 1");
-                IPplayer player2 = new jugador("jugador", 4, 2);
+                IPlayer player2 = new jugador("jugador", 4, 2);
                 //IPlayer player2 = new RandomPlayer("Kamikaze 2");
                                 
                 new Board(player1 , player2, 1, false);

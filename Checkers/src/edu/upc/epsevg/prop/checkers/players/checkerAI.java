@@ -155,11 +155,11 @@ public class checkerAI implements IPlayer, IAuto {
                     switch (peca) {
                         case P1:
                             cntAllyPieces++;
-                            boardVal += /*numDefendingNeighbors(i, j, gs) * 50 + backBonus(i)*/ + (15 * i) + middleBonus(i, j);
+                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + (15 * i) + middleBonus(i, j);
                             break;
                         case P2:
                             cntOppPieces++;
-                            boardVal -= /*numDefendingNeighbors(i, j, gs) * 50 + backBonus(i)*/ + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
                             break;
                         case P1Q:
                             cntAllyKings++;
@@ -174,11 +174,11 @@ public class checkerAI implements IPlayer, IAuto {
                     switch (peca) {
                         case P2:
                             cntAllyPieces++;
-                            boardVal += /*numDefendingNeighbors(i, j, gs) * 50 + backBonus(i)*/ + backBonus(i) + (15 * i) + middleBonus(i, j);
+                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * i) + middleBonus(i, j);
                             break;
                         case P1:
                             cntOppPieces++;
-                            boardVal -= /*numDefendingNeighbors(i, j, gs) * 50 + backBonus(i)*/ + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
                             break;
                         case P2Q:
                             cntAllyKings++;
