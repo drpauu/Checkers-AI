@@ -78,48 +78,45 @@ public class checkerAI implements IPlayer, IAuto {
         // init de les variables
         outOfTime = false;
         
+        //GameStatus copy = new GameStatus(gs);
+        //System.out.println(copy.toString());
+        
         // en el cas que nomes hi hagi un moviment, fem el moviment
         if(moviments.size() == 1){
             List<Point> path = new ArrayList<>();
             MoveNode node = peces.get(0);
             path.add(node.getPoint());
             int i = 0;
-            while(!node.getChildren().isEmpty()) {
-                node = node.getChildren().get(i);
-                path.add(node.getPoint());
-                i++;
-            } 
+            node = node.getChildren().get(0);
+            path.add(node.getPoint());
             return new PlayerMove( path, 0L, profunditat_actual, SearchType.MINIMAX_IDS);
         }
         for (profunditat_actual = 0; profunditat_actual < depth && !outOfTime; profunditat_actual++){
             millors_moviments = new ArrayList<>();
             int bestVal = Integer.MIN_VALUE;
             for(MoveNode move : peces){
-                int i = 0;
-                while(i < move.getChildren().size()) {
+                for(int i = 0; i < move.getChildren().size(); i++)  {
                     GameStatus copia = new GameStatus(gs);
                     List<Point> path = new ArrayList<>();
-                    path.add(move.getPoint());
                     MoveNode node = move.getChildren().get(i);
-                    i++;
-                    path.add(node.getPoint());
+                    path.add(0, move.getPoint());
+                    path.add(1, node.getPoint());
                     copia.movePiece(path);
                     
                     //System.out.println(copia.toString());
                     
                     //System.out.println(gs.toString());
-                    int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+                    int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE);
                     if (min == bestVal) {
-                        millors_moviments.add(move);
-                        millors_moviments.add(node);
+                        millors_moviments.add(0, move);
+                        millors_moviments.add(1, node);
                     }
                     if (min > bestVal) {
                         millors_moviments.clear();
-                        millors_moviments.add(move);
-                        millors_moviments.add(node);
+                        millors_moviments.add(0, move);
+                        millors_moviments.add(1, node);
                         bestVal = min;
                     }
-                    if (bestVal == Integer.MAX_VALUE) break; // jo que se, per si hi ha algun cas extrem
                 }
             }
         }
@@ -170,11 +167,11 @@ public class checkerAI implements IPlayer, IAuto {
                     switch (peca) {
                         case P1:
                             cntAllyPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + (15 * i) + middleBonus(i, j);
+                            boardVal += /*numDefendingNeighbors(i, j, gs) * 50 + backBonus(i)*/ + (15 * i) + middleBonus(i, j);
                             break;
                         case P2:
                             cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
+                            boardVal -= /*numDefendingNeighbors(i, j, gs) * 50 + backBonus(i)*/ + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
                             break;
                         case P1Q:
                             cntAllyKings++;
@@ -189,11 +186,11 @@ public class checkerAI implements IPlayer, IAuto {
                     switch (peca) {
                         case P2:
                             cntAllyPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + (15 * i) + middleBonus(i, j);
+                            boardVal += /*numDefendingNeighbors(i, j, gs) * 50 + backBonus(i)*/ + backBonus(i) + (15 * i) + middleBonus(i, j);
                             break;
                         case P1:
                             cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
+                            boardVal -= /*numDefendingNeighbors(i, j, gs) * 50 + backBonus(i)*/ + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
                             break;
                         case P2Q:
                             cntAllyKings++;
@@ -230,46 +227,46 @@ public class checkerAI implements IPlayer, IAuto {
         return boardVal;
     }
     
-    public int maxVal(GameStatus gameStatus, int alpha, int beta, int depth) {
+    public int maxVal(GameStatus gameStatus, int alpha, int beta) {
         int v = Integer.MIN_VALUE;
         for (MoveNode move : gameStatus.getMoves()) {
-            int i = 0;
-            while(i < move.getChildren().size()) {
+            for(int i = 0; i < move.getChildren().size()-1; i++) {
+                System.out.println("fill: " + i);
                 // Apply move to the copy of the game status
                 List<Point> path = new ArrayList<>();
                 MoveNode node = move.getChildren().get(i);
                 GameStatus copia = new GameStatus(gameStatus);
-                path.add(move.getPoint());
-                path.add(node.getPoint());
+                
+                path.add(0, move.getPoint());
+                path.add(1, node.getPoint());
                 copia.movePiece(path);
 
-                v = Math.max(v, minVal(copia, alpha, beta, depth + 1));
-                if (v >= alpha) return v;
-                beta = Math.max(beta, v);
-                i++;
+                v = Math.max(v, minVal(copia, alpha, beta));
+                if (v >= beta) return v;
+                alpha = Math.max(alpha, v);
             }
         }
         return v;
     }
 
     
-    public int minVal(GameStatus gameStatus, int alpha, int beta, int depth) {
+    public int minVal(GameStatus gameStatus, int alpha, int beta) {
         int v = Integer.MAX_VALUE;
         for (MoveNode move : gameStatus.getMoves()) {
-            int i = 0;
-            while(i < move.getChildren().size()) {
+            for(int i = 0; i < move.getChildren().size()-1; i++) {
                 // Apply move to the copy of the game status
                 List<Point> path = new ArrayList<>();
+                
                 MoveNode node = move.getChildren().get(i);
                 GameStatus copia = new GameStatus(gameStatus);
-                path.add(move.getPoint());
-                path.add(node.getPoint());
+                               
+                path.add(0, move.getPoint());
+                path.add(1, node.getPoint());
                 copia.movePiece(path);
                 
-                v = Math.min(v, maxVal(copia, alpha, beta, depth + 1));
+                v = Math.min(v, maxVal(copia, alpha, beta));
                 if (v <= alpha) return v;
                 beta = Math.min(beta, v);
-                i++;
             }
         }
         return v;
@@ -331,10 +328,6 @@ public class checkerAI implements IPlayer, IAuto {
     }
     
         
-    /**
-     * Ens avisa que hem de parar la cerca en curs perquè s'ha exhaurit el temps
-     * de joc.
-     */
     @Override
     public String getName() {
         return "checkerAI(" + name + ")";
