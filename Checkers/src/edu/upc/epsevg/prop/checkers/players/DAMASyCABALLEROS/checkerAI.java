@@ -1,4 +1,4 @@
-package edu.upc.epsevg.prop.checkers.players;
+package edu.upc.epsevg.prop.checkers.players.DAMASyCABALLEROS;
 
 
 import edu.upc.epsevg.prop.checkers.CellType;
@@ -127,8 +127,13 @@ public class checkerAI implements IPlayer, IAuto {
                 List<Point> path = new ArrayList<>();
                 
                 MoveNode node = move.getChildren().get(j);
-                path.add(move.getPoint());
+                path.add(move.getPoint()); 
+                while(!node.getChildren().isEmpty()){
+                    path.add(node.getPoint());
+                    node = node.getChildren().get(0);
+                }
                 path.add(node.getPoint());
+                
                 moviment.add(path);
                 j++;
             } 

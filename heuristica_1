@@ -1,0 +1,45 @@
+public int heuristica1(GameStatus gs){
+        
+        int files = 8;
+        int columnes = 8;
+        int valor = 0;
+        
+        for(int i = 0; i < files; i++){
+            for(int j = 0; j < columnes; j++){
+                
+                if(gs.getCurrentPlayer() == PlayerType.PLAYER1){
+                    switch(gs.getPos(i, j)){
+                        case P1:
+                            valor -= 3;
+                            break;
+                        case P2:
+                            valor += 3;
+                            break;
+                        case P1Q:
+                            valor -= 5;
+                            break;
+                        case P2Q:
+                            valor += 5;
+                            break;
+                    }       
+                } else {
+                    switch(gs.getPos(i, j)){
+                        case P2:
+                            valor -= 3;
+                            break;
+                        case P1:
+                            valor += 3;
+                            break;
+                        case P2Q:
+                            valor -= 5;
+                            break;
+                        case P1Q:
+                            valor += 5;
+                            break;
+                    } 
+                }
+            }
+        }
+        
+        return valor;
+    }

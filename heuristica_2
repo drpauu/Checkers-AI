@@ -1,0 +1,92 @@
+
+    public int heuristica2(GameStatus gs){
+        
+        int files = 8;
+        int columnes = 8;
+        int valor = 0; 
+        
+        for (int i = 0; i < files; i++) {
+            for (int j = 0; j < columnes; j++) {
+                if(gs.getCurrentPlayer() == PlayerType.PLAYER1){
+                    switch(gs.getPos(i, j)){
+                        case P2:
+                            valor += 3 + (i * 0.5) + numDefendingNeighbors(i, j, gs);
+                            if (j == 0 || j == 8) {
+                                valor += 1;
+                            }
+                            if (i == 0) {
+                                valor += 2;
+                            }
+                            break;
+                        case P1:
+                            valor -= 3 + ((7 - i) * 0.5) + numDefendingNeighbors(i, j, gs);
+                            if (j == 0 || j == 8) {
+                                valor -= 1;
+                            }
+                            if (i == 7) {
+                                valor -= 2;
+                            }
+                            break;
+                        case P2Q:
+                            valor += 5 + numDefendingNeighbors(i, j, gs);
+                            if (j == 0 || j == 8) {
+                                valor += 1;
+                            }
+                            if (i == 0) {
+                                valor += 2;
+                            }
+                            break;
+                        case P1Q:
+                            valor -= 5 + numDefendingNeighbors(i, j, gs);
+                            if (j == 0 || j == 8) {
+                                valor -= 1;
+                            }
+                            if (i == 7) {
+                                valor -= 2;
+                            }
+                            break;
+                    }
+                } else {
+                    switch(gs.getPos(i, j)) {
+                        case P1:
+                            valor -= 3 + (i * 0.5) + numDefendingNeighbors(i, j, gs);
+                            if (j == 0 || j == 8) {
+                                valor -= 1;
+                            }
+                            if (i == 0) {
+                                valor -= 2;
+                            }
+                            break;
+                        case P2:
+                            valor += 3 + ((7 - i) * 0.5) + numDefendingNeighbors(i, j, gs);
+                            if (j == 0 || j == 8) {
+                                valor += 1;
+                            }
+                            if (i == 7) {
+                                valor += 2;
+                            }
+                            break;
+                        case P1Q:
+                            valor -= 5 + numDefendingNeighbors(i, j, gs);
+                            if (j == 0 || j == 8) {
+                                valor -= 1;
+                            }
+                            if (i == 0) {
+                                valor -= 2;
+                            }
+                            break;
+                        case P2Q:
+                            valor += 5 + numDefendingNeighbors(i, j, gs);
+                            if (j == 0 || j == 8) {
+                                valor += 1;
+                            }
+                            if (i == 7) {
+                                valor += 2;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        return valor;
+    }
