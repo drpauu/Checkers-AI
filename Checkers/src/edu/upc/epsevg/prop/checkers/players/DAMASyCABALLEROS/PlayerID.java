@@ -42,10 +42,12 @@ public class PlayerID implements IPlayer, IAuto {
         this.name = name;
     }
 
+    @Override
     public void timeout() {
         // Nothing to do! I'm so fast, I never timeout 8-)
     }
     
+    @Override
     public String getName() {
         return "PlayerID(" + name + ")";
     }
@@ -76,17 +78,93 @@ public class PlayerID implements IPlayer, IAuto {
         return moviment;
     }
     
+    public boolean opening(GameStatus gs){
+        
+        if(PlayerType.PLAYER2 == gs.getCurrentPlayer() && gs.getScore(gs.getCurrentPlayer()) == 12){
+            if(gs.getPos(0,5) == CellType.P2 && gs.getPos(2, 5) == CellType.P2 && 
+                    gs.getPos(4,5) == CellType.P2 && gs.getPos(6,5) == CellType.P2 && 
+                    gs.getPos(1,6) == CellType.P2 && gs.getPos(3,6) == CellType.P2 && 
+                    gs.getPos(5,6) == CellType.P2 && gs.getPos(7,6) == CellType.P2 &&
+                    gs.getPos(0,7) == CellType.P2 && gs.getPos(2,7) == CellType.P2 && 
+                    gs.getPos(4,7) == CellType.P2 && gs.getPos(6,7) == CellType.P2){
+                return true;
+            }
+        } else {
+            if(gs.getPos(0,5) == CellType.P2 && gs.getPos(2, 5) == CellType.P2 && 
+                    gs.getPos(4,5) == CellType.P2 && gs.getPos(6,5) == CellType.P2 && 
+                    gs.getPos(1,6) == CellType.P2 && gs.getPos(3,6) == CellType.P2 && 
+                    gs.getPos(5,6) == CellType.P2 && gs.getPos(7,6) == CellType.P2 &&
+                    gs.getPos(0,7) == CellType.P2 && gs.getPos(2,7) == CellType.P2 && 
+                    gs.getPos(4,7) == CellType.P2 && gs.getPos(6,7) == CellType.P2){
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    
+    public boolean opening2(GameStatus gs){
+        
+        if(PlayerType.PLAYER2 == gs.getCurrentPlayer() && gs.getScore(gs.getCurrentPlayer()) == 12){
+            if(gs.getPos(0,5) == CellType.P2 && gs.getPos(3, 4) == CellType.P2 && 
+                    gs.getPos(4,5) == CellType.P2 && gs.getPos(6,5) == CellType.P2 && 
+                    gs.getPos(1,6) == CellType.P2 && gs.getPos(3,6) == CellType.P2 && 
+                    gs.getPos(5,6) == CellType.P2 && gs.getPos(7,6) == CellType.P2 &&
+                    gs.getPos(0,7) == CellType.P2 && gs.getPos(2,7) == CellType.P2 && 
+                    gs.getPos(4,7) == CellType.P2 && gs.getPos(6,7) == CellType.P2){
+                return true;
+            }
+        } else {
+            if(gs.getPos(0,5) == CellType.P2 && gs.getPos(2, 5) == CellType.P2 && 
+                    gs.getPos(4,5) == CellType.P2 && gs.getPos(6,5) == CellType.P2 && 
+                    gs.getPos(1,6) == CellType.P2 && gs.getPos(3,6) == CellType.P2 && 
+                    gs.getPos(5,6) == CellType.P2 && gs.getPos(7,6) == CellType.P2 &&
+                    gs.getPos(0,7) == CellType.P2 && gs.getPos(2,7) == CellType.P2 && 
+                    gs.getPos(4,7) == CellType.P2 && gs.getPos(6,7) == CellType.P2){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    
     @Override
     public PlayerMove move(GameStatus gs) {
         int millor_valor;
         List<Point> bestMove = new ArrayList<>();
         List<List<Point>> moviments = llista_moves(gs.getMoves());
+        List<MoveNode> peces = gs.getMoves();
+        MoveNode node;
         
+        // menja
+        if(moviments.size() == 1){
+            bestMove.add(peces.get(0).getPoint());
+            node = peces.get(0).getChildren().get(0);
+            bestMove.add(node.getPoint());
+            return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
+        }
+        // primer moviment
+        if(opening(gs)){
+            bestMove.add(peces.get(1).getPoint());
+            node = peces.get(1).getChildren().get(1);
+            bestMove.add(node.getPoint());
+            return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
+            
+        }
+        
+        // segon moviment
+        if(opening2(gs)){
+            bestMove.add(peces.get(4).getPoint());
+            node = peces.get(4).getChildren().get(0);
+            bestMove.add(node.getPoint());
+            return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
+            
+        }
         
         
         // es fa amb ids, i depth es el maxim que es pot baixar
-        for(int fons = 0; fons < depth; fons++){
-            millor_valor = Integer.MAX_VALUE;
+        for(int fons = 0; fons < 15; fons++){
+            millor_valor = Integer.MIN_VALUE;
             for(List<Point> move : moviments){
                 GameStatus copia = new GameStatus(gs);
                 copia.movePiece(move);
@@ -98,7 +176,7 @@ public class PlayerID implements IPlayer, IAuto {
                     millor_valor = min;
                     profunditat_actual = fons;
                 }
-                if (min < millor_valor) {
+                if (min > millor_valor) {
                     bestMove = move;
                     millor_valor = min;
                     profunditat_actual = fons;
@@ -111,44 +189,146 @@ public class PlayerID implements IPlayer, IAuto {
     }
     
     
-    // gets number of neighbors for a piece on the board
+    // estrategia X Y alpha 
     public int numDefendingNeighbors(int row, int col, GameStatus gs) {
-        int defense = 0;
-        CellType currentPiece = gs.getPos(row, col);
+        
         PlayerType currentPlayer = gs.getCurrentPlayer();
-
-        // Define checks based on piece type and player
-        if (currentPlayer == PlayerType.PLAYER1) {
-            // For Player 1 pieces
-            if (currentPiece == CellType.P1 || currentPiece == CellType.P1Q) {
-                // Check for defending neighbors for Player 1 pieces
-                defense += checkNeighbor(gs, row + 1, col + 1, CellType.P1, CellType.P1Q);
-                defense += checkNeighbor(gs, row + 1, col - 1, CellType.P1, CellType.P1Q);
-            }
-        } else if (currentPlayer == PlayerType.PLAYER2) {
-            // For Player 2 pieces
-            if (currentPiece == CellType.P2 || currentPiece == CellType.P2Q) {
-                // Check for defending neighbors for Player 2 pieces
-                defense += checkNeighbor(gs, row - 1, col + 1, CellType.P2, CellType.P2Q);
-                defense += checkNeighbor(gs, row - 1, col - 1, CellType.P2, CellType.P2Q);
-            }
+        
+        int defensa = 0;
+        
+        if(row == 0 || row == 7 || col == 0 || col == 7){
+            return 0;
         }
 
-        return defense;
-    }
-
-    // Helper method to check if a neighbor is a defending piece
-    private int checkNeighbor(GameStatus gs, int row, int col, CellType... validTypes) {
-        if (row >= 0 && row < 8 && col >= 0 && col < 8) {
-            CellType neighbor = gs.getPos(row, col);
-            for (CellType type : validTypes) {
-                if (neighbor == type) {
-                    return 1;
+        if(currentPlayer == PlayerType.PLAYER1){
+            if(gs.getPos(row-1, col-1) == CellType.P1 || gs.getPos(row-1, col-1) == CellType.P1Q){
+                defensa += 1;
+            }
+            if(gs.getPos(row-1, col+1) == CellType.P1 || gs.getPos(row-1, col+1) == CellType.P1Q){
+                defensa += 1;
+            }
+            if(gs.getPos(row-1, col+1) == CellType.P1 || gs.getPos(row-1, col+1) == CellType.P1Q){
+                if(defensa == 2){
+                    defensa = 4;
                 }
             }
+            if(gs.getPos(row-1, col+1) == CellType.P1 || gs.getPos(row-1, col+1) == CellType.P1Q){
+                if(defensa > 2){
+                    defensa = 5;
+                }
+                if(defensa == 2){
+                    defensa = 4;
+                } else defensa += 1;
+            }
+        }
+        
+        if(currentPlayer == PlayerType.PLAYER2){
+            if(gs.getPos(row-1, col-1) == CellType.P2 || gs.getPos(row-1, col-1) == CellType.P2Q){
+                defensa += 1;
+            }
+            if(gs.getPos(row-1, col+1) == CellType.P2 || gs.getPos(row-1, col+1) == CellType.P2Q){
+                defensa += 1;
+            }
+            if(gs.getPos(row-1, col+1) == CellType.P2 || gs.getPos(row-1, col+1) == CellType.P2Q){
+                if(defensa == 2){
+                    defensa = 4;
+                }
+            }
+            if(gs.getPos(row-1, col+1) == CellType.P2 || gs.getPos(row-1, col+1) == CellType.P2Q){
+                if(defensa > 2){
+                    defensa = 5;
+                }
+                if(defensa == 2){
+                    defensa = 4;
+                } else defensa += 1;
+            }
+        }
+        return defensa;
+    }
+    
+    public int patata_calenta(int jugador, int x, int y, GameStatus gs){
+        if(x == 0 && y == 7 && jugador == 1 && gs.getPos(x+1, y-1) == CellType.EMPTY){
+            return Integer.MAX_VALUE;
+        }
+        if(x == 7 && y == 0 && jugador == 2 && gs.getPos(x-1, y+1) == CellType.EMPTY){
+            return Integer.MAX_VALUE;
         }
         return 0;
     }
+    
+    public int jugades(GameStatus gs){
+        int defensa1 = 0;
+        
+        int defensa2 = 0;
+        
+        int cantonada = 0;
+        
+        int defensa = 0;
+        
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                if(gs.getCurrentPlayer() == PlayerType.PLAYER1){
+                    if(gs.getPos(7,2) == CellType.P1 || gs.getPos(7,2) == CellType.P1Q){
+                        defensa1++;
+                        defensa2++;
+                    }
+                    if(gs.getPos(7,4) == CellType.P1 || gs.getPos(7,4) == CellType.P1Q){
+                        defensa1++;
+                        defensa2++;
+                    }
+                    if(gs.getPos(7,6) == CellType.P1 || gs.getPos(7,6) == CellType.P1Q){
+                        defensa1++;
+                        defensa2++;
+                        cantonada++;
+                    }
+                    if(gs.getPos(6,3) == CellType.P1 || gs.getPos(6,3) == CellType.P1Q){
+                        defensa1++;
+                    }
+                    if(gs.getPos(6,5) == CellType.P1 || gs.getPos(6,5) == CellType.P1Q){
+                        defensa1++;
+                    }
+                    if(gs.getPos(6,7) == CellType.P1 || gs.getPos(6,7) == CellType.P1Q){
+                        cantonada++;
+                    }
+                } else{
+                    if(gs.getPos(0,3) == CellType.P1 || gs.getPos(0,3) == CellType.P1Q){
+                        defensa1++;
+                        defensa2++;
+                    }
+                    if(gs.getPos(0,5) == CellType.P1 || gs.getPos(0,5) == CellType.P1Q){
+                        defensa1++;
+                        defensa2++;
+                    }
+                    if(gs.getPos(0,1) == CellType.P1 || gs.getPos(0,1) == CellType.P1Q){
+                        defensa1++;
+                        defensa2++;
+                        cantonada++;
+                    }
+                    if(gs.getPos(1,4) == CellType.P1 || gs.getPos(1,4) == CellType.P1Q){
+                        defensa1++;
+                    }
+                    if(gs.getPos(1,2) == CellType.P1 || gs.getPos(1,2) == CellType.P1Q){
+                        defensa1++;
+                    }
+                    if(gs.getPos(1,0) == CellType.P1 || gs.getPos(1,0) == CellType.P1Q){
+                        defensa1++;
+                    }
+                }
+            }
+        }
+        if(defensa1 == 5){
+            defensa += 100;
+        }
+        if(defensa2 == 3){
+            defensa += 300;
+        }
+        if(cantonada == 2){
+            defensa += 500;
+        }
+        
+        return defensa;
+    }
+    
     
     public int heuristica(GameStatus gs){
         int numRows = 8;
@@ -161,45 +341,45 @@ public class PlayerID implements IPlayer, IAuto {
         
         for (int i = 0; i < numRows; i++) {
             for (int j = 0; j < numCols; j++) {
-                // Assuming there's a method in GameStatus to get the piece type at a given position
+                
                 CellType peca = gs.getPos(i, j);
                 PlayerType jugador = gs.getCurrentPlayer();
                 if(jugador == PlayerType.PLAYER1){
                     switch (peca) {
                         case P1:
                             cntAllyPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + (15 * i) + middleBonus(i, j);
+                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + (15 * i) + middleBonus(i, j) + jugades(gs) + patata_calenta(1, i, j, gs);
                             break;
                         case P2:
                             cntOppPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j)+jugades(gs);
                             break;
                         case P1Q:
                             cntAllyKings++;
-                            boardVal -= middleBonus(i,j);
+                            boardVal += middleBonus(i,j);
                             break;
                         case P2Q:
                             cntOppKings++;
-                            boardVal += middleBonus(i,j);
+                            boardVal -= middleBonus(i,j);
                             break;
                     }
                 } else {
                     switch (peca) {
                         case P2:
                             cntAllyPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * i) + middleBonus(i, j);
+                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * i) + middleBonus(i, j)+jugades(gs)+patata_calenta(1, i, j, gs);
                             break;
                         case P1:
                             cntOppPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j);
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j)+jugades(gs);
                             break;
                         case P2Q:
                             cntAllyKings++;
-                            boardVal -= middleBonus(i,j);
+                            boardVal += middleBonus(i,j);
                             break;
                         case P1Q:
                             cntOppKings++;
-                            boardVal += middleBonus(i,j);
+                            boardVal -= middleBonus(i,j);
                             break;
                     }
                 }
@@ -215,7 +395,7 @@ public class PlayerID implements IPlayer, IAuto {
             }
         }
 
-        boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 1000 * cntOppKings;
+        boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 100 * cntOppKings;
 
         if (cntOppPieces + cntOppKings == 0 && cntAllyPieces + cntAllyKings > 0) {
             boardVal = Integer.MAX_VALUE;
@@ -229,6 +409,7 @@ public class PlayerID implements IPlayer, IAuto {
     }
     
     public int middleBonus(int row, int col) {
+        
         return 100 - ((Math.abs(4 - col) + Math.abs(4 - row)) * 10);
     }
     

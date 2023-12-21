@@ -24,13 +24,13 @@ public class Game {
             @Override
             public void run() {
                 
-                IPlayer player2 = new OnePiecePlayer(1);
+                IPlayer player1 = new OnePiecePlayer(1);
                 
                 //IPlayer player2 = new RandomPlayer("random");
 
-                IPlayer player1 = new PlayerID("DAMASyCABALLEROS",5, 1);
+                IPlayer player2 = new PlayerID("DAMASyCABALLEROS",3, 1);
 
-                Board board = new Board(player1 , player2, 1, false);
+                Board board = new Board(player1 , player2, 1,true);
                 
              }
         });
