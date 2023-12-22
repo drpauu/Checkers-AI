@@ -52,6 +52,49 @@ public class PlayerID implements IPlayer, IAuto {
         return "PlayerID(" + name + ")";
     }
     
+    public void game_init(GameStatus gs){
+        int numRows = 8;
+        int numCols = 8;
+        
+        for (int i = 0; i < numRows; i++) {
+            for (int j = 0; j < numCols; j++) {
+                
+                CellType peca = gs.getPos(i, j);
+                PlayerType jugador = gs.getCurrentPlayer();
+                if(jugador == PlayerType.PLAYER1){
+                    switch (peca) {
+                        case P1:
+                            numAllyPieces++;
+                            break;
+                        case P2:
+                            numOppPieces++;
+                            break;
+                        case P1Q:
+                            numAllyKings++;
+                            break;
+                        case P2Q:
+                            numOppKings++;
+                            break;
+                    }
+                } else {
+                    switch (peca) {
+                        case P2:
+                            numAllyPieces++;
+                            break;
+                        case P1:
+                            numOppPieces++;
+                            break;
+                        case P2Q:
+                            numAllyKings++;
+                            break;
+                        case P1Q:
+                            numOppKings++;
+                            break;
+                    }
+                }
+            }
+        }
+    }
     
     // funcio auxiliar per fer la llista de moviments 
     public List<List<Point>> llista_moves(List<MoveNode> movimientos){
@@ -101,33 +144,7 @@ public class PlayerID implements IPlayer, IAuto {
         }
         return false;
     }
-    
-    
-    public boolean opening2(GameStatus gs){
-        
-        if(PlayerType.PLAYER2 == gs.getCurrentPlayer() && gs.getScore(gs.getCurrentPlayer()) == 12){
-            if(gs.getPos(0,5) == CellType.P2 && gs.getPos(3, 4) == CellType.P2 && 
-                    gs.getPos(4,5) == CellType.P2 && gs.getPos(6,5) == CellType.P2 && 
-                    gs.getPos(1,6) == CellType.P2 && gs.getPos(3,6) == CellType.P2 && 
-                    gs.getPos(5,6) == CellType.P2 && gs.getPos(7,6) == CellType.P2 &&
-                    gs.getPos(0,7) == CellType.P2 && gs.getPos(2,7) == CellType.P2 && 
-                    gs.getPos(4,7) == CellType.P2 && gs.getPos(6,7) == CellType.P2){
-                return true;
-            }
-        } else {
-            if(gs.getPos(0,5) == CellType.P2 && gs.getPos(2, 5) == CellType.P2 && 
-                    gs.getPos(4,5) == CellType.P2 && gs.getPos(6,5) == CellType.P2 && 
-                    gs.getPos(1,6) == CellType.P2 && gs.getPos(3,6) == CellType.P2 && 
-                    gs.getPos(5,6) == CellType.P2 && gs.getPos(7,6) == CellType.P2 &&
-                    gs.getPos(0,7) == CellType.P2 && gs.getPos(2,7) == CellType.P2 && 
-                    gs.getPos(4,7) == CellType.P2 && gs.getPos(6,7) == CellType.P2){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    
+      
     @Override
     public PlayerMove move(GameStatus gs) {
         int millor_valor;
@@ -136,15 +153,8 @@ public class PlayerID implements IPlayer, IAuto {
         List<MoveNode> peces = gs.getMoves();
         MoveNode node;
         
-        // menja
-        if(moviments.size() == 1){
-            bestMove.add(peces.get(0).getPoint());
-            node = peces.get(0).getChildren().get(0);
-            bestMove.add(node.getPoint());
-            return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
-        }
         // primer moviment
-        if(opening(gs)){
+        if(opening(gs) && moviments.size() == 7){
             bestMove.add(peces.get(1).getPoint());
             node = peces.get(1).getChildren().get(1);
             bestMove.add(node.getPoint());
@@ -152,33 +162,23 @@ public class PlayerID implements IPlayer, IAuto {
             
         }
         
-        // segon moviment
-        if(opening2(gs)){
-            bestMove.add(peces.get(4).getPoint());
-            node = peces.get(4).getChildren().get(0);
-            bestMove.add(node.getPoint());
-            return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
-            
-        }
-        
         
         // es fa amb ids, i depth es el maxim que es pot baixar
-        for(int fons = 0; fons < 15; fons++){
-            millor_valor = Integer.MIN_VALUE;
+        for(int fons = 0; fons < this.depth; fons++){
+            millor_valor = Integer.MAX_VALUE;
             for(List<Point> move : moviments){
                 GameStatus copia = new GameStatus(gs);
                 copia.movePiece(move);
                 
-                int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
-                
-                if (min == millor_valor) {
+                int max = maxVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+                if (max == millor_valor) {
                     bestMove = move;
-                    millor_valor = min;
+                    millor_valor = max;
                     profunditat_actual = fons;
                 }
-                if (min > millor_valor) {
+                if (max < millor_valor) {
                     bestMove = move;
-                    millor_valor = min;
+                    millor_valor = max;
                     profunditat_actual = fons;
                 }
             }
@@ -189,7 +189,6 @@ public class PlayerID implements IPlayer, IAuto {
     }
     
     
-    // estrategia X Y alpha 
     public int numDefendingNeighbors(int row, int col, GameStatus gs) {
         
         PlayerType currentPlayer = gs.getCurrentPlayer();
@@ -208,17 +207,10 @@ public class PlayerID implements IPlayer, IAuto {
                 defensa += 1;
             }
             if(gs.getPos(row-1, col+1) == CellType.P1 || gs.getPos(row-1, col+1) == CellType.P1Q){
-                if(defensa == 2){
-                    defensa = 4;
-                }
+                defensa += 1;
             }
             if(gs.getPos(row-1, col+1) == CellType.P1 || gs.getPos(row-1, col+1) == CellType.P1Q){
-                if(defensa > 2){
-                    defensa = 5;
-                }
-                if(defensa == 2){
-                    defensa = 4;
-                } else defensa += 1;
+                defensa += 1;
             }
         }
         
@@ -230,102 +222,12 @@ public class PlayerID implements IPlayer, IAuto {
                 defensa += 1;
             }
             if(gs.getPos(row-1, col+1) == CellType.P2 || gs.getPos(row-1, col+1) == CellType.P2Q){
-                if(defensa == 2){
-                    defensa = 4;
-                }
+                defensa += 1;
             }
             if(gs.getPos(row-1, col+1) == CellType.P2 || gs.getPos(row-1, col+1) == CellType.P2Q){
-                if(defensa > 2){
-                    defensa = 5;
-                }
-                if(defensa == 2){
-                    defensa = 4;
-                } else defensa += 1;
+                defensa += 1;
             }
         }
-        return defensa;
-    }
-    
-    public int patata_calenta(int jugador, int x, int y, GameStatus gs){
-        if(x == 0 && y == 7 && jugador == 1 && gs.getPos(x+1, y-1) == CellType.EMPTY){
-            return Integer.MAX_VALUE;
-        }
-        if(x == 7 && y == 0 && jugador == 2 && gs.getPos(x-1, y+1) == CellType.EMPTY){
-            return Integer.MAX_VALUE;
-        }
-        return 0;
-    }
-    
-    public int jugades(GameStatus gs){
-        int defensa1 = 0;
-        
-        int defensa2 = 0;
-        
-        int cantonada = 0;
-        
-        int defensa = 0;
-        
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if(gs.getCurrentPlayer() == PlayerType.PLAYER1){
-                    if(gs.getPos(7,2) == CellType.P1 || gs.getPos(7,2) == CellType.P1Q){
-                        defensa1++;
-                        defensa2++;
-                    }
-                    if(gs.getPos(7,4) == CellType.P1 || gs.getPos(7,4) == CellType.P1Q){
-                        defensa1++;
-                        defensa2++;
-                    }
-                    if(gs.getPos(7,6) == CellType.P1 || gs.getPos(7,6) == CellType.P1Q){
-                        defensa1++;
-                        defensa2++;
-                        cantonada++;
-                    }
-                    if(gs.getPos(6,3) == CellType.P1 || gs.getPos(6,3) == CellType.P1Q){
-                        defensa1++;
-                    }
-                    if(gs.getPos(6,5) == CellType.P1 || gs.getPos(6,5) == CellType.P1Q){
-                        defensa1++;
-                    }
-                    if(gs.getPos(6,7) == CellType.P1 || gs.getPos(6,7) == CellType.P1Q){
-                        cantonada++;
-                    }
-                } else{
-                    if(gs.getPos(0,3) == CellType.P1 || gs.getPos(0,3) == CellType.P1Q){
-                        defensa1++;
-                        defensa2++;
-                    }
-                    if(gs.getPos(0,5) == CellType.P1 || gs.getPos(0,5) == CellType.P1Q){
-                        defensa1++;
-                        defensa2++;
-                    }
-                    if(gs.getPos(0,1) == CellType.P1 || gs.getPos(0,1) == CellType.P1Q){
-                        defensa1++;
-                        defensa2++;
-                        cantonada++;
-                    }
-                    if(gs.getPos(1,4) == CellType.P1 || gs.getPos(1,4) == CellType.P1Q){
-                        defensa1++;
-                    }
-                    if(gs.getPos(1,2) == CellType.P1 || gs.getPos(1,2) == CellType.P1Q){
-                        defensa1++;
-                    }
-                    if(gs.getPos(1,0) == CellType.P1 || gs.getPos(1,0) == CellType.P1Q){
-                        defensa1++;
-                    }
-                }
-            }
-        }
-        if(defensa1 == 5){
-            defensa += 100;
-        }
-        if(defensa2 == 3){
-            defensa += 300;
-        }
-        if(cantonada == 2){
-            defensa += 500;
-        }
-        
         return defensa;
     }
     
@@ -347,12 +249,25 @@ public class PlayerID implements IPlayer, IAuto {
                 if(jugador == PlayerType.PLAYER1){
                     switch (peca) {
                         case P1:
+                            if(i == 7 && j == 0) boardVal -= 100;
+                            if(i == 7 && j == 4) boardVal += 100;
+                            if(i == 6 && j == 7) boardVal += 100;
+                            if(i == 2 && j == 7) boardVal += 100;
+                            if(i == 7 && j == 6) boardVal += 100;
                             cntAllyPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + (15 * i) + middleBonus(i, j) + jugades(gs) + patata_calenta(1, i, j, gs);
+                            boardVal += numDefendingNeighbors(i, j, gs) * 10 
+                                    + backBonus(i)
+                                    + middleBonus(i, j);
                             break;
                         case P2:
+                            if(i == 4 && j == 7) boardVal += 100;
+                            if(i == 7 && j == 6) boardVal += 100;
+                            if(i == 2 && j == 7) boardVal += 100;
+                            if(i == 6 && j == 7) boardVal += 100;
                             cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j)+jugades(gs);
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 10 
+                                    + backBonus(i)
+                                    + middleBonus(i, j);
                             break;
                         case P1Q:
                             cntAllyKings++;
@@ -366,27 +281,42 @@ public class PlayerID implements IPlayer, IAuto {
                 } else {
                     switch (peca) {
                         case P2:
+                            if(i == 0 && j == 7) boardVal -= 100;
+                            if(i == 4 && j == 7) boardVal += 100;
+                            if(i == 7 && j == 6) boardVal += 100;
+                            if(i == 2 && j == 7) boardVal += 100;
+                            if(i == 6 && j == 7) boardVal += 100;
                             cntAllyPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * i) + middleBonus(i, j)+jugades(gs)+patata_calenta(1, i, j, gs);
+                            boardVal += numDefendingNeighbors(i, j, gs) * 10 
+                                    + backBonus(i)
+                                    + middleBonus(i, j);
                             break;
                         case P1:
+                            if(i == 7 && j == 4) boardVal += 100;
+                            if(i == 6 && j == 7) boardVal += 100;
+                            if(i == 2 && j == 7) boardVal += 100;
+                            if(i == 7 && j == 6) boardVal += 100;
                             cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 + backBonus(i) + backBonus(i) + (15 * (7 - i)) + middleBonus(i, j)+jugades(gs);
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 10 
+                                    + backBonus(i)
+                                    + middleBonus(i, j);
                             break;
                         case P2Q:
                             cntAllyKings++;
-                            boardVal += middleBonus(i,j);
+                            boardVal += middleBonus(i,j)*10;
                             break;
                         case P1Q:
                             cntOppKings++;
-                            boardVal -= middleBonus(i,j);
+                            boardVal -= middleBonus(i,j)*10;
                             break;
                     }
                 }
             }
         }
         
-        // force trades when ahead
+        
+        
+        // forçar 1v1
         if (numAllyPieces + numAllyKings > numOppPieces + numOppKings && cntOppPieces + cntOppKings != 0 && numOppPieces + numOppKings != 0 && numOppKings != 1) {
             if ((cntAllyPieces + cntAllyKings)/(cntOppPieces + cntOppKings) > (numAllyPieces + numAllyKings)/(numOppPieces + numOppKings)) {
                 boardVal += 150;
@@ -395,7 +325,7 @@ public class PlayerID implements IPlayer, IAuto {
             }
         }
 
-        boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 100 * cntOppKings;
+        boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 1500 * cntOppKings;
 
         if (cntOppPieces + cntOppKings == 0 && cntAllyPieces + cntAllyKings > 0) {
             boardVal = Integer.MAX_VALUE;
@@ -415,10 +345,10 @@ public class PlayerID implements IPlayer, IAuto {
     
     public int backBonus(int row) {
         if (maximizingPlayer == 1 && row == 0) {
-            return 200;
+            return 100;
         }
         if (maximizingPlayer == 2 && row == 7) {
-            return 200;
+            return 100;
         }
         return 0;
     }

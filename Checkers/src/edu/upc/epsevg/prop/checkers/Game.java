@@ -26,11 +26,11 @@ public class Game {
                 
                 IPlayer player1 = new OnePiecePlayer(1);
                 
-                //IPlayer player2 = new RandomPlayer("random");
+                //IPlayer player1 = new RandomPlayer("random");
 
-                IPlayer player2 = new PlayerID("DAMASyCABALLEROS",3, 1);
+                IPlayer player2 = new PlayerID("DAMASyCABALLEROS",8, 2);
 
-                Board board = new Board(player1 , player2, 1,true);
+                Board board = new Board(player1 , player2, 1,false);
                 
              }
         });
