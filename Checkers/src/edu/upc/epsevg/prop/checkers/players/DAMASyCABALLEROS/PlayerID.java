@@ -165,20 +165,20 @@ public class PlayerID implements IPlayer, IAuto {
         
         // es fa amb ids, i depth es el maxim que es pot baixar
         for(int fons = 0; fons < this.depth; fons++){
-            millor_valor = Integer.MAX_VALUE;
+            millor_valor = Integer.MIN_VALUE;
             for(List<Point> move : moviments){
                 GameStatus copia = new GameStatus(gs);
                 copia.movePiece(move);
                 
-                int max = maxVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
-                if (max == millor_valor) {
+                int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+                if (min == millor_valor) {
                     bestMove = move;
-                    millor_valor = max;
+                    millor_valor = min;
                     profunditat_actual = fons;
                 }
-                if (max < millor_valor) {
+                if (min > millor_valor) {
                     bestMove = move;
-                    millor_valor = max;
+                    millor_valor = min;
                     profunditat_actual = fons;
                 }
             }
