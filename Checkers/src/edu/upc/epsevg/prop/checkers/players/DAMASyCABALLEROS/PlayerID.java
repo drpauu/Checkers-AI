@@ -252,20 +252,20 @@ public class PlayerID implements IPlayer, IAuto {
                             if(i == 7 && j == 0) boardVal -= 100;
                             if(i == 7 && j == 4) boardVal += 100;
                             if(i == 6 && j == 7) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 100;
-                            if(i == 7 && j == 6) boardVal += 100;
+                            if(i == 2 && j == 7) boardVal += 200;
+                            if(i == 7 && j == 6) boardVal += 300;
                             cntAllyPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 10 
+                            boardVal += numDefendingNeighbors(i, j, gs) * 50 
                                     + backBonus(i)
                                     + middleBonus(i, j);
                             break;
                         case P2:
                             if(i == 4 && j == 7) boardVal += 100;
                             if(i == 7 && j == 6) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 100;
-                            if(i == 6 && j == 7) boardVal += 100;
+                            if(i == 2 && j == 7) boardVal += 200;
+                            if(i == 6 && j == 7) boardVal += 300;
                             cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 10 
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 25
                                     + backBonus(i)
                                     + middleBonus(i, j);
                             break;
@@ -284,20 +284,20 @@ public class PlayerID implements IPlayer, IAuto {
                             if(i == 0 && j == 7) boardVal -= 100;
                             if(i == 4 && j == 7) boardVal += 100;
                             if(i == 7 && j == 6) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 100;
-                            if(i == 6 && j == 7) boardVal += 100;
+                            if(i == 2 && j == 7) boardVal += 200;
+                            if(i == 6 && j == 7) boardVal += 300;
                             cntAllyPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 10 
+                            boardVal += numDefendingNeighbors(i, j, gs) * 55 
                                     + backBonus(i)
                                     + middleBonus(i, j);
                             break;
                         case P1:
                             if(i == 7 && j == 4) boardVal += 100;
                             if(i == 6 && j == 7) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 100;
-                            if(i == 7 && j == 6) boardVal += 100;
+                            if(i == 2 && j == 7) boardVal += 200;
+                            if(i == 7 && j == 6) boardVal += 300;
                             cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 10 
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 25 
                                     + backBonus(i)
                                     + middleBonus(i, j);
                             break;
@@ -317,15 +317,12 @@ public class PlayerID implements IPlayer, IAuto {
         
         
         // forçar 1v1
-        if (numAllyPieces + numAllyKings > numOppPieces + numOppKings && cntOppPieces + cntOppKings != 0 && numOppPieces + numOppKings != 0 && numOppKings != 1) {
-            if ((cntAllyPieces + cntAllyKings)/(cntOppPieces + cntOppKings) > (numAllyPieces + numAllyKings)/(numOppPieces + numOppKings)) {
-                boardVal += 150;
-            } else {
-                boardVal -= 150;
-            }
-        }
 
-        boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 1500 * cntOppKings;
+        if((cntAllyPieces + cntAllyKings) > 6 || (cntOppPieces + cntOppKings) > 6){
+            boardVal += 200 * cntAllyPieces + 1500 * cntAllyKings - 200 * cntOppPieces - 1500 * cntOppKings;
+        } else {
+            boardVal += 1000 * cntAllyPieces + 3000 * cntAllyKings - 600 * cntOppPieces - 1500 * cntOppKings;
+        }
 
         if (cntOppPieces + cntOppKings == 0 && cntAllyPieces + cntAllyKings > 0) {
             boardVal = Integer.MAX_VALUE;
