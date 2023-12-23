@@ -188,7 +188,7 @@ public class PlayerID implements IPlayer, IAuto {
     
     }
     
-    
+    // sha de mirar si hi ha un Q enemic o no, perque la defensa hauria de canviar
     public int numDefendingNeighbors(int row, int col, GameStatus gs) {
         
         PlayerType currentPlayer = gs.getCurrentPlayer();
@@ -322,7 +322,15 @@ public class PlayerID implements IPlayer, IAuto {
             boardVal += 200 * cntAllyPieces + 1500 * cntAllyKings - 200 * cntOppPieces - 1500 * cntOppKings;
         } else {
             boardVal += 1000 * cntAllyPieces + 3000 * cntAllyKings - 600 * cntOppPieces - 1500 * cntOppKings;
+        if (numAllyPieces + numAllyKings > numOppPieces + numOppKings && cntOppPieces 
+                + cntOppKings != 0 && numOppPieces + numOppKings != 0 && numOppKings != 1 
+                && (cntAllyPieces + cntAllyKings) > 6 && (cntOppPieces + cntOppKings) > 6) {
+            if ((cntAllyPieces + cntAllyKings)/(cntOppPieces + cntOppKings) > (numAllyPieces + numAllyKings)/(numOppPieces + numOppKings)) {
+                boardVal += 600;
+            }  else boardVal += 600;
         }
+
+        boardVal += 200 * cntAllyPieces + 1000 * cntAllyKings - 200 * cntOppPieces - 1000 * cntOppKings;
 
         if (cntOppPieces + cntOppKings == 0 && cntAllyPieces + cntAllyKings > 0) {
             boardVal = Integer.MAX_VALUE;
@@ -330,6 +338,12 @@ public class PlayerID implements IPlayer, IAuto {
 
         if (cntAllyPieces + cntAllyKings == 0 && cntOppPieces + cntOppKings > 0) {
             boardVal -= Integer.MIN_VALUE;
+        }
+        
+        if (cntOppPieces + cntOppKings + cntAllyPieces + cntAllyKings <= 12) {
+            if(cntOppPieces + cntOppKings*2 < cntAllyPieces + cntAllyKings*2){
+                boardVal = Integer.MAX_VALUE;
+            }
         }
                 
         return boardVal;
