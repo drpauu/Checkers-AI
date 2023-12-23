@@ -28,7 +28,7 @@ public class Game {
                 
                 //IPlayer player1 = new RandomPlayer("random");
 
-                IPlayer player2 = new PlayerID("DAMASyCABALLEROS",9, 2,4);
+                IPlayer player2 = new PlayerID("DAMASyCABALLEROS",5, 2,1);
 
                 Board board = new Board(player1 , player2, 1,false);
                 

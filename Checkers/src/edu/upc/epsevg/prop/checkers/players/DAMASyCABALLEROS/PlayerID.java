@@ -166,7 +166,6 @@ public class PlayerID implements IPlayer, IAuto {
         int millor_valor;
         List<Point> bestMove = new ArrayList<>();
         List<List<Point>> moviments = llista_moves(gs.getMoves());
-        bestMove = moviments.get(0); // aixi retorna algo
         
         
         
@@ -178,7 +177,9 @@ public class PlayerID implements IPlayer, IAuto {
                 copia.movePiece(move);
                 
                 int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
-                if(outOfTime) break;
+                if(outOfTime) {
+                    return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
+                }
                 if (min == millor_valor) {
                     bestMove = move;
                     millor_valor = min;
