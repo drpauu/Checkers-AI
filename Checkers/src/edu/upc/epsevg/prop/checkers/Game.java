@@ -5,6 +5,7 @@ import edu.upc.epsevg.prop.checkers.players.RandomPlayer;
 import edu.upc.epsevg.prop.checkers.IPlayer;
 import edu.upc.epsevg.prop.checkers.players.OnePiecePlayer;
 import edu.upc.epsevg.prop.checkers.players.DAMASyCABALLEROS.PlayerID;
+import edu.upc.epsevg.prop.checkers.players.DAMASyCABALLEROS.PlayerMiniMax;
 
 
 
@@ -28,9 +29,10 @@ public class Game {
                 
                 //IPlayer player1 = new RandomPlayer("random");
 
-                IPlayer player2 = new PlayerID("DAMASyCABALLEROS",7, 2,20);
+                //IPlayer player2 = new PlayerID("DAMASyCABALLEROS",7, 2,20);
+                IPlayer player2 = new PlayerMiniMax("DAMASyCABALLEROS", 7, 2);
 
-                Board board = new Board(player1 , player2, 1,false);
+                Board board = new Board(player1 , player2, 1, false);
                 
              }
         });
