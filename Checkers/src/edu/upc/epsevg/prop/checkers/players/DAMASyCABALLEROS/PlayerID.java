@@ -32,7 +32,6 @@ public class PlayerID implements IPlayer, IAuto {
     public long startTime;
     public long currentTime;
     public boolean outOfTime;
-    
     public int timeLimit;
     
     public String name;
@@ -43,16 +42,17 @@ public class PlayerID implements IPlayer, IAuto {
     public int numAllyPieces, numAllyKings, numOppPieces, numOppKings;
     
 
-    public PlayerID(String name, int depth, int jugador1jugador2, int temps) {
+    public PlayerID(String name, int jugador1jugador2, int temps) {
         this.maximizingPlayer = jugador1jugador2;
-        this.depth = depth;
         this.name = name;
         this.timeLimit = temps;
     }
 
     @Override
     public void timeout() {
-        // Nothing to do! I'm so fast, I never timeout 8-)
+        Date date = new Date();
+        startTime = date.getTime();
+        outOfTime = false;
     }
     
     @Override
@@ -155,20 +155,15 @@ public class PlayerID implements IPlayer, IAuto {
       
     @Override
     public PlayerMove move(GameStatus gs) {
-        
-        Date date = new Date();
-        startTime = date.getTime();
-                
-        outOfTime = false;
-        
+        timeout();
         int millor_valor;
         List<Point> bestMove = new ArrayList<>();
         List<List<Point>> moviments = llista_moves(gs.getMoves());
         
-        
-        
-        // es fa amb ids, i depth es el maxim que es pot baixar
-        for(int fons = 0; fons < this.depth && !outOfTime; fons++){
+        // es fa amb ids, i depth és el màxim que s'ha baixat
+        int fons = 0;
+        while(!outOfTime){
+            //faltaria guardar l'últim arbre complet que s'ha recorregut
             millor_valor = Integer.MIN_VALUE;
             for(List<Point> move : moviments){
                 GameStatus copia = new GameStatus(gs);
@@ -189,6 +184,8 @@ public class PlayerID implements IPlayer, IAuto {
                     profunditat_actual = fons;
                 }
             }
+            this.depth = fons;
+            fons++;
         }
         
         return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
@@ -307,8 +304,6 @@ public class PlayerID implements IPlayer, IAuto {
                 }
             }
         }
-        
-        
         
         // forçar 1v1
         if (numAllyPieces + numAllyKings > numOppPieces + numOppKings && cntOppPieces 

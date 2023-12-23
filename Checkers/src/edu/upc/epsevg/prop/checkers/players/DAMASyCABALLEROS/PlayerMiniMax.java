@@ -311,8 +311,7 @@ public class PlayerMiniMax implements IPlayer, IAuto {
             if(cntOppPieces + cntOppKings*2 < cntAllyPieces + cntAllyKings*2){
                 boardVal = Integer.MAX_VALUE;
             }
-        }
-        */
+        }*/
                 
         return boardVal;
     }
