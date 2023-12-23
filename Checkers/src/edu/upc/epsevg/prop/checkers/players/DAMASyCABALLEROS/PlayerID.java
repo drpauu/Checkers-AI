@@ -171,24 +171,22 @@ public class PlayerID implements IPlayer, IAuto {
                 
                 int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
                 if(outOfTime) {
-                    return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
+                    return new PlayerMove(bestMove, this.nodes_explorats, this.profunditat_actual, SearchType.MINIMAX_IDS);
                 }
                 if (min == millor_valor) {
                     bestMove = move;
                     millor_valor = min;
-                    profunditat_actual = fons;
                 }
                 if (min > millor_valor) {
                     bestMove = move;
                     millor_valor = min;
-                    profunditat_actual = fons;
                 }
             }
             this.depth = fons;
             fons++;
         }
         
-        return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
+        return new PlayerMove(bestMove, this.nodes_explorats, this.profunditat_actual, SearchType.MINIMAX_IDS);
     
     }
     
