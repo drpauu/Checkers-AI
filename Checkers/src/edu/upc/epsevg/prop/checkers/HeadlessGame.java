@@ -27,7 +27,7 @@ public class HeadlessGame {
 
         IPlayer player2 = new OnePiecePlayer(1);
 
-        IPlayer player1 = new PlayerID("DAMASyCABALLEROS",5, 1);
+        IPlayer player1 = new PlayerID("DAMASyCABALLEROS",5, 1,1);
 
         HeadlessGame game = new HeadlessGame(player1, player2, 1/*s timeout*/, 10/*games*/);
         GameResult gr = game.start();

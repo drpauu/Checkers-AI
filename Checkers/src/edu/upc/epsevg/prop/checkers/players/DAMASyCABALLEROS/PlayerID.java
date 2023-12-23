@@ -28,6 +28,13 @@ public class PlayerID implements IPlayer, IAuto {
     public int depth;
     public int profunditat_actual = 0;
     public int nodes_explorats = 0;
+    
+    public long startTime;
+    public long currentTime;
+    public boolean outOfTime;
+    
+    public int timeLimit;
+    
     public String name;
     public GameStatus s;
     // maximizingPlayer specifies which player the computer is playing for.
@@ -36,10 +43,11 @@ public class PlayerID implements IPlayer, IAuto {
     public int numAllyPieces, numAllyKings, numOppPieces, numOppKings;
     
 
-    public PlayerID(String name, int depth, int jugador1jugador2) {
+    public PlayerID(String name, int depth, int jugador1jugador2, int temps) {
         this.maximizingPlayer = jugador1jugador2;
         this.depth = depth;
         this.name = name;
+        this.timeLimit = temps;
     }
 
     @Override
@@ -147,30 +155,30 @@ public class PlayerID implements IPlayer, IAuto {
       
     @Override
     public PlayerMove move(GameStatus gs) {
+        
+        Date date = new Date();
+        startTime = date.getTime();
+        
+        Random random = new Random();
+                
+        outOfTime = false;
+        
         int millor_valor;
         List<Point> bestMove = new ArrayList<>();
         List<List<Point>> moviments = llista_moves(gs.getMoves());
-        List<MoveNode> peces = gs.getMoves();
-        MoveNode node;
+        bestMove = moviments.get(0); // aixi retorna algo
         
-        // primer moviment
-        if(opening(gs) && moviments.size() == 7){
-            bestMove.add(peces.get(1).getPoint());
-            node = peces.get(1).getChildren().get(1);
-            bestMove.add(node.getPoint());
-            return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
-            
-        }
         
         
         // es fa amb ids, i depth es el maxim que es pot baixar
-        for(int fons = 0; fons < this.depth; fons++){
+        for(int fons = 0; fons < this.depth && !outOfTime; fons++){
             millor_valor = Integer.MIN_VALUE;
             for(List<Point> move : moviments){
                 GameStatus copia = new GameStatus(gs);
                 copia.movePiece(move);
                 
                 int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+                if(outOfTime) break;
                 if (min == millor_valor) {
                     bestMove = move;
                     millor_valor = min;
@@ -249,25 +257,18 @@ public class PlayerID implements IPlayer, IAuto {
                 if(jugador == PlayerType.PLAYER1){
                     switch (peca) {
                         case P1:
-                            if(i == 7 && j == 0) boardVal -= 100;
-                            if(i == 7 && j == 4) boardVal += 100;
-                            if(i == 6 && j == 7) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 200;
-                            if(i == 7 && j == 6) boardVal += 300;
+                            if(i == 7 && j == 0) boardVal -= 50;
                             cntAllyPieces++;
                             boardVal += numDefendingNeighbors(i, j, gs) * 50 
                                     + backBonus(i)
-                                    + middleBonus(i, j);
+                                    + middleBonus(i, j)*10;
                             break;
                         case P2:
-                            if(i == 4 && j == 7) boardVal += 100;
-                            if(i == 7 && j == 6) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 200;
-                            if(i == 6 && j == 7) boardVal += 300;
+                            if(i == 0 && j == 7) boardVal += 50;
                             cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 25
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 
                                     + backBonus(i)
-                                    + middleBonus(i, j);
+                                    + middleBonus(i, j)*10;
                             break;
                         case P1Q:
                             cntAllyKings++;
@@ -281,33 +282,27 @@ public class PlayerID implements IPlayer, IAuto {
                 } else {
                     switch (peca) {
                         case P2:
-                            if(i == 0 && j == 7) boardVal -= 100;
-                            if(i == 4 && j == 7) boardVal += 100;
-                            if(i == 7 && j == 6) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 200;
-                            if(i == 6 && j == 7) boardVal += 300;
+                            if(i == 0 && j == 7) boardVal -= 50;
+
                             cntAllyPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 55 
+                            boardVal += numDefendingNeighbors(i, j, gs) * 50 
                                     + backBonus(i)
-                                    + middleBonus(i, j);
+                                    + middleBonus(i, j)*10;
                             break;
                         case P1:
-                            if(i == 7 && j == 4) boardVal += 100;
-                            if(i == 6 && j == 7) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 200;
-                            if(i == 7 && j == 6) boardVal += 300;
+                            if(i == 7 && j == 0) boardVal += 50;
                             cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 25 
+                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 
                                     + backBonus(i)
-                                    + middleBonus(i, j);
+                                    + middleBonus(i, j)*10;
                             break;
                         case P2Q:
                             cntAllyKings++;
-                            boardVal += middleBonus(i,j)*10;
+                            boardVal += middleBonus(i,j);
                             break;
                         case P1Q:
                             cntOppKings++;
-                            boardVal -= middleBonus(i,j)*10;
+                            boardVal -= middleBonus(i,j);
                             break;
                     }
                 }
@@ -317,11 +312,6 @@ public class PlayerID implements IPlayer, IAuto {
         
         
         // forçar 1v1
-
-        if((cntAllyPieces + cntAllyKings) > 6 || (cntOppPieces + cntOppKings) > 6){
-            boardVal += 200 * cntAllyPieces + 1500 * cntAllyKings - 200 * cntOppPieces - 1500 * cntOppKings;
-        } else {
-            boardVal += 1000 * cntAllyPieces + 3000 * cntAllyKings - 600 * cntOppPieces - 1500 * cntOppKings;
         if (numAllyPieces + numAllyKings > numOppPieces + numOppKings && cntOppPieces 
                 + cntOppKings != 0 && numOppPieces + numOppKings != 0 && numOppKings != 1 
                 && (cntAllyPieces + cntAllyKings) > 6 && (cntOppPieces + cntOppKings) > 6) {
@@ -366,6 +356,14 @@ public class PlayerID implements IPlayer, IAuto {
     
     public int maxVal(GameStatus gs, int alpha, int beta, int depth) {
         
+        Date newDate = new Date();
+        currentTime = newDate.getTime();
+        
+        if ((currentTime - startTime) >= timeLimit * 990) {
+            outOfTime = true;
+            return 0;
+        }
+        
         List<List<Point>> moviments = llista_moves(gs.getMoves());
         
         if(moviments.isEmpty() || depth == this.depth){
@@ -390,6 +388,13 @@ public class PlayerID implements IPlayer, IAuto {
     }
     
     public int minVal(GameStatus gs, int alpha, int beta, int depth){
+        
+        Date newDate = new Date();
+        currentTime = newDate.getTime();
+        if ((currentTime - startTime) > timeLimit * 990) {
+            outOfTime = true;
+            return 0;
+        }
         
         List<List<Point>> moviments = llista_moves(gs.getMoves());
         
