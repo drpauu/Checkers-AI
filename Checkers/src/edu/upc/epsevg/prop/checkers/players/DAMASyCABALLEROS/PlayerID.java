@@ -158,8 +158,6 @@ public class PlayerID implements IPlayer, IAuto {
         
         Date date = new Date();
         startTime = date.getTime();
-        
-        Random random = new Random();
                 
         outOfTime = false;
         
@@ -258,18 +256,18 @@ public class PlayerID implements IPlayer, IAuto {
                 if(jugador == PlayerType.PLAYER1){
                     switch (peca) {
                         case P1:
-                            if(i == 7 && j == 0) boardVal -= 50;
+                            //if(i == 7 && j == 0) boardVal -= 50;
                             cntAllyPieces++;
                             boardVal += numDefendingNeighbors(i, j, gs) * 50 
                                     + backBonus(i)
-                                    + middleBonus(i, j)*10;
+                                    + middleBonus(i, j);
                             break;
                         case P2:
-                            if(i == 0 && j == 7) boardVal += 50;
+                            //if(i == 0 && j == 7) boardVal += 50;
                             cntOppPieces++;
                             boardVal -= numDefendingNeighbors(i, j, gs) * 50 
                                     + backBonus(i)
-                                    + middleBonus(i, j)*10;
+                                    + middleBonus(i, j);
                             break;
                         case P1Q:
                             cntAllyKings++;
@@ -283,19 +281,19 @@ public class PlayerID implements IPlayer, IAuto {
                 } else {
                     switch (peca) {
                         case P2:
-                            if(i == 0 && j == 7) boardVal -= 50;
+                            //if(i == 0 && j == 7) boardVal -= 50;
 
                             cntAllyPieces++;
                             boardVal += numDefendingNeighbors(i, j, gs) * 50 
                                     + backBonus(i)
-                                    + middleBonus(i, j)*10;
+                                    + middleBonus(i, j);
                             break;
                         case P1:
-                            if(i == 7 && j == 0) boardVal += 50;
+                            //if(i == 7 && j == 0) boardVal += 50;
                             cntOppPieces++;
                             boardVal -= numDefendingNeighbors(i, j, gs) * 50 
                                     + backBonus(i)
-                                    + middleBonus(i, j)*10;
+                                    + middleBonus(i, j);
                             break;
                         case P2Q:
                             cntAllyKings++;
@@ -317,11 +315,11 @@ public class PlayerID implements IPlayer, IAuto {
                 + cntOppKings != 0 && numOppPieces + numOppKings != 0 && numOppKings != 1 
                 && (cntAllyPieces + cntAllyKings) > 6 && (cntOppPieces + cntOppKings) > 6) {
             if ((cntAllyPieces + cntAllyKings)/(cntOppPieces + cntOppKings) > (numAllyPieces + numAllyKings)/(numOppPieces + numOppKings)) {
-                boardVal += 600;
-            }  else boardVal += 600;
+                boardVal += 150;
+            }  else boardVal += 150;
         }
 
-        boardVal += 200 * cntAllyPieces + 1000 * cntAllyKings - 200 * cntOppPieces - 1000 * cntOppKings;
+        boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 1000 * cntOppKings;
 
         if (cntOppPieces + cntOppKings == 0 && cntAllyPieces + cntAllyKings > 0) {
             boardVal = Integer.MAX_VALUE;
@@ -331,11 +329,14 @@ public class PlayerID implements IPlayer, IAuto {
             boardVal -= Integer.MIN_VALUE;
         }
         
+        // aixo es la part final de la partida
+        /*
         if (cntOppPieces + cntOppKings + cntAllyPieces + cntAllyKings <= 12) {
             if(cntOppPieces + cntOppKings*2 < cntAllyPieces + cntAllyKings*2){
                 boardVal = Integer.MAX_VALUE;
             }
         }
+        */
                 
         return boardVal;
     }
