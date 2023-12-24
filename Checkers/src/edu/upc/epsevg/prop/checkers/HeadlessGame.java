@@ -25,11 +25,11 @@ public class HeadlessGame {
     private int timeout;
 
     public static void main(String[] args) {
+        IPlayer player1 = new RandomPlayer("random");
+        //IPlayer player2 = new OnePiecePlayer(1);
 
-        IPlayer player2 = new OnePiecePlayer(1);
-
-        //IPlayer player1 = new PlayerID("DAMASyCABALLEROS", 2, 5);
-        IPlayer player1 = new PlayerMiniMax("DAMASyCABALLEROS", 7, 2);
+        IPlayer player2 = new PlayerID("DAMASyCABALLEROS", 1, 1);
+        //IPlayer player1 = new PlayerMiniMax("DAMASyCABALLEROS", 7, 2);
 
         HeadlessGame game = new HeadlessGame(player1, player2, 1/*s timeout*/, 10/*games*/);
         GameResult gr = game.start();

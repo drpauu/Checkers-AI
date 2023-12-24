@@ -25,30 +25,32 @@ import java.util.*;
  */
 public class PlayerMiniMax implements IPlayer, IAuto {
 
-    public int depth;
-    public int profunditat_actual = 0;
-    public int nodes_explorats = 0;
-    public String name;
-    public GameStatus s;
-    // maximizingPlayer specifies which player the computer is playing for.
-    public int maximizingPlayer;
+    public int profunditat_;
+    public int profunditat_actual_ = 0;
+    public int nodes_explorats_ = 0;
+    public String name_;
     
-    public int numAllyPieces, numAllyKings, numOppPieces, numOppKings;
+    // tipusJugador_ especifica per quin jugador est[a jugant l'ordinador.
+    public int tipusJugador_;
     
-    public boolean acabat = false;
+    public int pecesAliades_;
+    public int reisAliats_;
+    public int pecesOponents_;
+    public int reisOponents_;
     
     /**
     * Constructor de la classe PlayerMiniMax.
     * 
     * @param name Nom del jugador.
-    * @param depth Profunditat màxima de cerca en l'algorisme Minimax.
+    * @param profunditat Profunditat màxima de cerca en l'algorisme Minimax.
     * @param jugador1jugador2 Indica si el jugador és el jugador 1 o 2.
     */
-    public PlayerMiniMax(String name, int depth, int jugador1jugador2) {
-        this.maximizingPlayer = jugador1jugador2;
-        this.depth = depth;
-        this.name = name;
+    public PlayerMiniMax(String name, int profunditat, int jugador1jugador2) {
+        this.tipusJugador_ = jugador1jugador2;
+        this.profunditat_ = profunditat;
+        this.name_ = name;
     }
+    
     /**
     * Mètode cridat quan s'acaba el temps de joc.
     * No es realitza cap acció addicional ja que el jugador és ràpid i no excedeix el temps.
@@ -57,6 +59,7 @@ public class PlayerMiniMax implements IPlayer, IAuto {
     public void timeout() {
         // Nothing to do! I'm so fast, I never timeout 8-)
     }
+    
     /**
     * Retorna el nom del jugador.
     * 
@@ -64,18 +67,19 @@ public class PlayerMiniMax implements IPlayer, IAuto {
     */
     @Override
     public String getName() {
-        return "PlayerID(" + name + ")";
+        return "PlayerMiniMax(" + name_ + ")";
     }
+    
     /**
     * Inicialitza el recompte de peces i reines al començament del joc.
     * 
     * @param gs Estat actual del joc.
     */
     public void game_init(GameStatus gs){
-        int numRows = 8;
+        int numFiles = 8;
         int numCols = 8;
         
-        for (int i = 0; i < numRows; i++) {
+        for (int i = 0; i < numFiles; i++) {
             for (int j = 0; j < numCols; j++) {
                 
                 CellType peca = gs.getPos(i, j);
@@ -83,31 +87,31 @@ public class PlayerMiniMax implements IPlayer, IAuto {
                 if(jugador == PlayerType.PLAYER1){
                     switch (peca) {
                         case P1:
-                            numAllyPieces++;
+                            pecesAliades_++;
                             break;
                         case P2:
-                            numOppPieces++;
+                            pecesOponents_++;
                             break;
                         case P1Q:
-                            numAllyKings++;
+                            reisAliats_++;
                             break;
                         case P2Q:
-                            numOppKings++;
+                            reisOponents_++;
                             break;
                     }
                 } else {
                     switch (peca) {
                         case P2:
-                            numAllyPieces++;
+                            pecesAliades_++;
                             break;
                         case P1:
-                            numOppPieces++;
+                            pecesOponents_++;
                             break;
                         case P2Q:
-                            numAllyKings++;
+                            reisAliats_++;
                             break;
                         case P1Q:
-                            numOppKings++;
+                            reisOponents_++;
                             break;
                     }
                 }
@@ -118,13 +122,13 @@ public class PlayerMiniMax implements IPlayer, IAuto {
     /**
     * Funció auxiliar per convertir una llista de MoveNode en una llista de llistes de Point.
     * 
-    * @param movimientos Llista de MoveNode amb els moviments possibles.
+    * @param llistaMoviments Llista de MoveNode amb els moviments possibles.
     * @return Llista de llistes de Point representant els moviments.
     */
-    public List<List<Point>> llista_moves(List<MoveNode> movimientos){
+    public List<List<Point>> llista_moves(List<MoveNode> llistaMoviments){
         List<List<Point>> moviment = new ArrayList<>();
         int i = 0;
-        for(MoveNode move : movimientos){
+        for(MoveNode move : llistaMoviments){
             int j = 0;
             while(j < move.getChildren().size()) {
                 List<Point> path = new ArrayList<>();
@@ -174,80 +178,74 @@ public class PlayerMiniMax implements IPlayer, IAuto {
     @Override
     public PlayerMove move(GameStatus gs) {
         int millor_valor;
-        List<Point> bestMove = new ArrayList<>();
+        List<Point> millorMoviment = new ArrayList<>();
         List<List<Point>> moviments = llista_moves(gs.getMoves());
-   
-        game_init(gs);
         
-        // es fa amb ids, i depth es el maxim que es pot baixar
-        for(int fons = 0; fons < this.depth; fons++){
+        game_init(gs);
+   
+        // es fa amb ids, i profunditat_ es el maxim que es pot baixar
+        for(int fons = 0; fons < this.profunditat_; fons++){
             millor_valor = Integer.MAX_VALUE;
             for(List<Point> move : moviments){
                 GameStatus copia = new GameStatus(gs);
                 copia.movePiece(move);
                 
                 int max = maxVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
-                if (max == millor_valor) {
-                    bestMove = move;
+                if (max <= millor_valor) {
+                    millorMoviment = move;
                     millor_valor = max;
-                    profunditat_actual = fons;
-                }
-                if (max < millor_valor) {
-                    bestMove = move;
-                    millor_valor = max;
-                    profunditat_actual = fons;
+                    profunditat_actual_ = fons;
                 }
             }
         }
         
-        return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
-    
+        return new PlayerMove(millorMoviment, nodes_explorats_, profunditat_actual_, SearchType.MINIMAX_IDS);
     }
     
     /**
     * Calcula el nombre de veïns que defensen una peça en una posició donada.
     * 
-    * @param row Fila de la peça.
+    * @param fila Fila de la peça.
     * @param col Columna de la peça.
     * @param gs Estat actual del joc.
     * @return Nombre de veïns que defensen la peça.
     */
-    public int numDefendingNeighbors(int row, int col, GameStatus gs) {
+    public int numVeinsDefensors(int fila, int col, GameStatus gs) {
         
         PlayerType currentPlayer = gs.getCurrentPlayer();
         
         int defensa = 0;
         
-        if(row == 0 || row == 7 || col == 0 || col == 7){
+        if(fila == 0 || fila == 7 || col == 0 || col == 7){
             return 2;
         }
 
         if(currentPlayer == PlayerType.PLAYER1){
-            if(gs.getPos(row-1, col-1) == CellType.P1 || gs.getPos(row-1, col-1) == CellType.P1Q){
+            if(gs.getPos(fila-1, col-1) == CellType.P1 || gs.getPos(fila-1, col-1) == CellType.P1Q){
                 defensa += 1;
             }
-            if(gs.getPos(row-1, col+1) == CellType.P1 || gs.getPos(row-1, col+1) == CellType.P1Q){
+            if(gs.getPos(fila-1, col+1) == CellType.P1 || gs.getPos(fila-1, col+1) == CellType.P1Q){
                 defensa += 1;
             }
-            if(gs.getPos(row-1, col+1) == CellType.P1 || gs.getPos(row-1, col+1) == CellType.P1Q){
+            if(gs.getPos(fila-1, col+1) == CellType.P1 || gs.getPos(fila-1, col+1) == CellType.P1Q){
                 defensa += 1;
             }
-            if(gs.getPos(row-1, col+1) == CellType.P1 || gs.getPos(row-1, col+1) == CellType.P1Q){
+            if(gs.getPos(fila-1, col+1) == CellType.P1 || gs.getPos(fila-1, col+1) == CellType.P1Q){
                 defensa += 1;
             }
         }
         
         if(currentPlayer == PlayerType.PLAYER2){
-            if(gs.getPos(row-1, col-1) == CellType.P2 || gs.getPos(row-1, col-1) == CellType.P2Q){
+            if(gs.getPos(fila-1, col-1) == CellType.P2 || gs.getPos(fila-1, col-1) == CellType.P2Q){
                 defensa += 1;
             }
-            if(gs.getPos(row-1, col+1) == CellType.P2 || gs.getPos(row-1, col+1) == CellType.P2Q){
+            if(gs.getPos(fila-1, col+1) == CellType.P2 || gs.getPos(fila-1, col+1) == CellType.P2Q){
                 defensa += 1;
             }
-            if(gs.getPos(row-1, col+1) == CellType.P2 || gs.getPos(row-1, col+1) == CellType.P2Q){
+            if(gs.getPos(fila-1, col+1) == CellType.P2 || gs.getPos(fila-1, col+1) == CellType.P2Q){
                 defensa += 1;
             }
-            if(gs.getPos(row-1, col+1) == CellType.P2 || gs.getPos(row-1, col+1) == CellType.P2Q){
+            if(gs.getPos(fila-1, col+1) == CellType.P2 || gs.getPos(fila-1, col+1) == CellType.P2Q){
                 defensa += 1;
             }
         }
@@ -261,13 +259,13 @@ public class PlayerMiniMax implements IPlayer, IAuto {
     * @return Valoració heurística de l'estat del tauler.
     */
     public int heuristica(GameStatus gs){
-        int numRows = 8;
+        int numFiles = 8;
         int numCols = 8;
         int boardVal = 0;
-        int cntAllyPieces = 0;
-        int cntAllyKings = 0;
-        int cntOppPieces = 0;
-        int cntOppKings = 0;
+        int cntPecesAliades = 0;
+        int cntReisAliats = 0;
+        int cntPecesOponents = 0;
+        int cntReisOponents = 0;
         boolean principi = false;
         
         int ap = 0;
@@ -276,7 +274,7 @@ public class PlayerMiniMax implements IPlayer, IAuto {
         int ok = 0;
         
         // valorar el punt de la partida
-        for (int i = 0; i < numRows; i++) {
+        for (int i = 0; i < numFiles; i++) {
             for (int j = 0; j < numCols; j++) {
                 
                 CellType peca = gs.getPos(i, j);
@@ -320,8 +318,8 @@ public class PlayerMiniMax implements IPlayer, IAuto {
         }
         if(ak + ap + op + ok < 14){
             // forçar 1v1
-            if (numAllyPieces + numAllyKings > numOppPieces + numOppKings && cntOppPieces + cntOppKings != 0 && numOppPieces + numOppKings != 0 && numOppKings != 1) {
-                if ((cntAllyPieces + cntAllyKings)/(cntOppPieces + cntOppKings) > (numAllyPieces + numAllyKings)/(numOppPieces + numOppKings)) {
+            if (pecesAliades_ + reisAliats_ > pecesOponents_ + reisOponents_ && cntPecesOponents + cntReisOponents != 0 && pecesOponents_ + reisOponents_ != 0 && reisOponents_ != 1) {
+                if ((cntPecesAliades + cntReisAliats)/(cntPecesOponents + cntReisOponents) > (pecesAliades_ + reisAliats_)/(pecesOponents_ + reisOponents_)) {
                     boardVal += 300;
                 } else {
                     boardVal -= 300;
@@ -330,7 +328,7 @@ public class PlayerMiniMax implements IPlayer, IAuto {
 
             boardVal += 600 * ak + 1000 * ap - 600 * op - 1000 * ok;
         } else {
-            for (int i = 0; i < numRows; i++) {
+            for (int i = 0; i < numFiles; i++) {
                 for (int j = 0; j < numCols; j++) {
 
                     CellType peca = gs.getPos(i, j);
@@ -344,8 +342,8 @@ public class PlayerMiniMax implements IPlayer, IAuto {
                                     if(i == 5 && j == 0) boardVal += 100;
                                     if(i == 7 && j == 0) boardVal -= 200;
                                 }
-                                cntAllyPieces++;
-                                boardVal += numDefendingNeighbors(i, j, gs) * 50 
+                                cntPecesAliades++;
+                                boardVal += numVeinsDefensors(i, j, gs) * 50 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -356,17 +354,17 @@ public class PlayerMiniMax implements IPlayer, IAuto {
                                     if(i == 6 && j == 7) boardVal -= 200;
                                     if(i == 2 && j == 7) boardVal -= 100;
                                 }
-                                cntOppPieces++;
-                                boardVal -= numDefendingNeighbors(i, j, gs) * 50 
+                                cntPecesOponents++;
+                                boardVal -= numVeinsDefensors(i, j, gs) * 50 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
                             case P1Q:
-                                cntAllyKings++;
+                                cntReisAliats++;
                                 boardVal += middleBonus(i,j);
                                 break;
                             case P2Q:
-                                cntOppKings++;
+                                cntReisOponents++;
                                 boardVal -= middleBonus(i,j);
                                 break;
                         }
@@ -379,8 +377,8 @@ public class PlayerMiniMax implements IPlayer, IAuto {
                                     if(i == 6 && j == 7) boardVal += 200;
                                     if(i == 2 && j == 7) boardVal += 100;
                                 }
-                                cntAllyPieces++;
-                                boardVal += numDefendingNeighbors(i, j, gs) * 50 
+                                cntPecesAliades++;
+                                boardVal += numVeinsDefensors(i, j, gs) * 50 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -391,17 +389,17 @@ public class PlayerMiniMax implements IPlayer, IAuto {
                                     if(i == 5 && j == 0) boardVal -= 100;
                                     if(i == 7 && j == 0) boardVal += 200;
                                 }
-                                cntOppPieces++;
-                                boardVal -= numDefendingNeighbors(i, j, gs) * 50 
+                                cntPecesOponents++;
+                                boardVal -= numVeinsDefensors(i, j, gs) * 50 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
                             case P2Q:
-                                cntAllyKings++;
+                                cntReisAliats++;
                                 boardVal += middleBonus(i,j);
                                 break;
                             case P1Q:
-                                cntOppKings++;
+                                cntReisOponents++;
                                 boardVal -= middleBonus(i,j);
                                 break;
                         }
@@ -409,14 +407,14 @@ public class PlayerMiniMax implements IPlayer, IAuto {
                 }
             }
 
-            boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 1000 * cntOppKings;
+            boardVal += 600 * cntPecesAliades + 1000 * cntReisAliats - 600 * cntPecesOponents - 1000 * cntReisOponents;
         }
 
-        if (cntOppPieces + cntOppKings == 0 && cntAllyPieces + cntAllyKings > 0) {
+        if (cntPecesOponents + cntReisOponents == 0 && cntPecesAliades + cntReisAliats > 0) {
             boardVal = Integer.MAX_VALUE;
         }
 
-        if (cntAllyPieces + cntAllyKings == 0 && cntOppPieces + cntOppKings > 0) {
+        if (cntPecesAliades + cntReisAliats == 0 && cntPecesOponents + cntReisOponents > 0) {
             boardVal -= Integer.MIN_VALUE;
         }
                 
@@ -425,25 +423,25 @@ public class PlayerMiniMax implements IPlayer, IAuto {
     /**
     * Calcula un bonus basat en la posició central de la peça.
     * 
-    * @param row Fila de la peça.
+    * @param fila Fila de la peça.
     * @param col Columna de la peça.
     * @return Puntuació de bonus per la posició de la peça.
     */
-    public int middleBonus(int row, int col) {
+    public int middleBonus(int fila, int col) {
         
-        return 100 - ((Math.abs(4 - col) + Math.abs(4 - row)) * 10);
+        return 100 - ((Math.abs(4 - col) + Math.abs(4 - fila)) * 10);
     }
     /**
     * Calcula un bonus per les peces situades a la fila de darrere.
     * 
-    * @param row Fila de la peça.
+    * @param fila Fila de la peça.
     * @return Puntuació de bonus per la posició de la peça.
     */
-    public int backBonus(int row) {
-        if (maximizingPlayer == 1 && row == 0) {
+    public int backBonus(int fila) {
+        if (tipusJugador_ == 1 && fila == 0) {
             return 100;
         }
-        if (maximizingPlayer == 2 && row == 7) {
+        if (tipusJugador_ == 2 && fila == 7) {
             return 100;
         }
         return 0;
@@ -454,14 +452,14 @@ public class PlayerMiniMax implements IPlayer, IAuto {
     * @param gs Estat actual del joc.
     * @param alpha Valor alpha per a la poda Alpha-Beta.
     * @param beta Valor beta per a la poda Alpha-Beta.
-    * @param depth Profunditat actual de la cerca.
+    * @param profunditat Profunditat actual de la cerca.
     * @return El valor màxim obtingut.
     */
-    public int maxVal(GameStatus gs, int alpha, int beta, int depth) {
+    public int maxVal(GameStatus gs, int alpha, int beta, int profunditat) {
         
         List<List<Point>> moviments = llista_moves(gs.getMoves());
         
-        if(moviments.isEmpty() || depth == this.depth){
+        if(moviments.isEmpty() || profunditat == this.profunditat_){
             return heuristica(gs);
         }
         
@@ -471,7 +469,7 @@ public class PlayerMiniMax implements IPlayer, IAuto {
             GameStatus copia = new GameStatus(gs);
             copia.movePiece(move);
             
-            v = Math.max( v, minVal(copia, alpha, beta, depth + 1));
+            v = Math.max( v, minVal(copia, alpha, beta, profunditat + 1));
             
             if(v >= beta) return v;
             alpha = Math.max(alpha, v);
@@ -487,14 +485,14 @@ public class PlayerMiniMax implements IPlayer, IAuto {
     * @param gs Estat actual del joc.
     * @param alpha Valor alpha per a la poda Alpha-Beta.
     * @param beta Valor beta per a la poda Alpha-Beta.
-    * @param depth Profunditat actual de la cerca.
+    * @param profunditat Profunditat actual de la cerca.
     * @return El valor mínim obtingut.
     */
-    public int minVal(GameStatus gs, int alpha, int beta, int depth){
+    public int minVal(GameStatus gs, int alpha, int beta, int profunditat){
         
         List<List<Point>> moviments = llista_moves(gs.getMoves());
         
-        if(moviments.isEmpty() || depth == this.depth){
+        if(moviments.isEmpty() || profunditat == this.profunditat_){
             return heuristica(gs);
         }
         
@@ -504,7 +502,7 @@ public class PlayerMiniMax implements IPlayer, IAuto {
             GameStatus copia = new GameStatus(gs);
             copia.movePiece(move);
             
-            v = Math.min( v, maxVal(copia, alpha, beta, depth + 1));
+            v = Math.min( v, maxVal(copia, alpha, beta, profunditat + 1));
             
             if(v <= alpha) return v;
             beta = Math.min(beta, v);
