@@ -28,11 +28,6 @@ public class PlayerID implements IPlayer, IAuto {
     public int depth;
     public int profunditat_actual = 0;
     public int nodes_explorats = 0;
-
-    public boolean outOfTime;
-    public int timeLimit;
-    private Timer timer;
-    
     public String name;
     public GameStatus s;
     // maximizingPlayer specifies which player the computer is playing for.
@@ -41,27 +36,15 @@ public class PlayerID implements IPlayer, IAuto {
     public int numAllyPieces, numAllyKings, numOppPieces, numOppKings;
     
 
-    public PlayerID(String name, int jugador1jugador2, int time) {
+    public PlayerID(String name, int depth, int jugador1jugador2) {
         this.maximizingPlayer = jugador1jugador2;
+        this.depth = depth;
         this.name = name;
-        this.timeLimit = time;
     }
 
     @Override
     public void timeout() {
         // Nothing to do! I'm so fast, I never timeout 8-)
-        outOfTime = false;
-        Timer timer = new Timer();
-        
-        TimerTask task = new TimerTask(){
-            @Override
-            public void run(){
-                outOfTime = true;
-            }
-        };
-        
-        int time = timeLimit * 1000;
-        timer.schedule(task, time);
     }
     
     @Override
@@ -152,46 +135,12 @@ public class PlayerID implements IPlayer, IAuto {
         }
         return false;
     }
-<<<<<<< Updated upstream
-        
-=======
     
->>>>>>> Stashed changes
     @Override
     public PlayerMove move(GameStatus gs) {
-        timeout();
-        nodes_explorats = 0;
         int millor_valor;
         List<Point> bestMove = new ArrayList<>();
         List<List<Point>> moviments = llista_moves(gs.getMoves());
-<<<<<<< Updated upstream
-        List<MoveNode> peces = gs.getMoves();
-        MoveNode node;
-        
-        game_init(gs);
-        
-        // primer moviment
-        if(opening(gs) && moviments.size() == 7){
-            bestMove.add(peces.get(1).getPoint());
-            node = peces.get(1).getChildren().get(1);
-            bestMove.add(node.getPoint());
-            return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX);
-        }
-        
-        int prof_max = 0;
-        while(!outOfTime){
-            millor_valor = Integer.MIN_VALUE;
-            prof_max++;
-            for(List<Point> move : moviments){
-                GameStatus copia = new GameStatus(gs);
-                copia.movePiece(move);
-
-                int min = minVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
-                if (min >= millor_valor) {
-                    bestMove = move;
-                    millor_valor = min;
-                    profunditat_actual = prof_max;
-=======
    
         // es fa amb ids, i depth es el maxim que es pot baixar
         for(int fons = 0; fons < this.depth; fons++){
@@ -210,13 +159,14 @@ public class PlayerID implements IPlayer, IAuto {
                     bestMove = move;
                     millor_valor = max;
                     profunditat_actual = fons;
->>>>>>> Stashed changes
                 }
             }
         }
-        //if (timer != null) timer.cancel();
+        
         return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
+    
     }
+    
     
     public int numDefendingNeighbors(int row, int col, GameStatus gs) {
         
@@ -440,7 +390,6 @@ public class PlayerID implements IPlayer, IAuto {
     }
     
     public int maxVal(GameStatus gs, int alpha, int beta, int depth) {
-        if (outOfTime) return 0;
         
         List<List<Point>> moviments = llista_moves(gs.getMoves());
         
@@ -460,13 +409,12 @@ public class PlayerID implements IPlayer, IAuto {
             alpha = Math.max(alpha, v);
             
         }
-        nodes_explorats++;
+        
         return v;
         
     }
     
     public int minVal(GameStatus gs, int alpha, int beta, int depth){
-        if (outOfTime) return 0;
         
         List<List<Point>> moviments = llista_moves(gs.getMoves());
         
@@ -486,7 +434,8 @@ public class PlayerID implements IPlayer, IAuto {
             beta = Math.min(beta, v);
             
         }
-        nodes_explorats++;
-        return v; 
+        
+        return v;
+        
     }
 }
