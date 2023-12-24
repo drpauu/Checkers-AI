@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package edu.upc.epsevg.prop.checkers.players.DAMASyCABALLEROS;
 
 import edu.upc.epsevg.prop.checkers.CellType;
@@ -21,7 +17,7 @@ import java.util.*;
 
 /**
  *
- * @author user
+ * @author pau i cesco
  */
 public class PlayerID implements IPlayer, IAuto {
 
@@ -42,7 +38,13 @@ public class PlayerID implements IPlayer, IAuto {
     
     public boolean acabat = false;
     
-
+    /**
+    * Constructor de la classe PlayerID.
+    * 
+    * @param name Nom del jugador.
+    * @param temps Temps límit per a cada moviment.
+    * @param jugador1jugador2 Indica si el jugador és el jugador 1 o 2.
+    */
     public PlayerID(String name, int temps, int jugador1jugador2) {
         this.maximizingPlayer = jugador1jugador2;
         this.depth = 50;
@@ -50,16 +52,30 @@ public class PlayerID implements IPlayer, IAuto {
         this.name = name;
     }
 
+    /**
+    * Mètode cridat quan s'acaba el temps de joc.
+    * No es realitza cap acció addicional ja que el jugador és ràpid i no excedeix el temps.
+    */
     @Override
     public void timeout() {
         // Nothing to do! I'm so fast, I never timeout 8-)
     }
     
+    /**
+    * Retorna el nom del jugador.
+    * 
+    * @return Una cadena amb el nom del jugador.
+    */
     @Override
     public String getName() {
         return "PlayerID(" + name + ")";
     }
     
+    /**
+    * Inicialitza el recompte de peces i reines al començament del joc.
+    * 
+    * @param gs Estat actual del joc.
+    */
     public void game_init(GameStatus gs){
         int numRows = 8;
         int numCols = 8;
@@ -104,7 +120,12 @@ public class PlayerID implements IPlayer, IAuto {
         }
     }
     
-    // funcio auxiliar per fer la llista de moviments 
+    /**
+    * Funció auxiliar per convertir una llista de MoveNode en una llista de llistes de Point.
+    * 
+    * @param movimientos Llista de MoveNode amb els moviments possibles.
+    * @return Llista de llistes de Point representant els moviments.
+    */
     public List<List<Point>> llista_moves(List<MoveNode> movimientos){
         List<List<Point>> moviment = new ArrayList<>();
         int i = 0;
@@ -129,6 +150,12 @@ public class PlayerID implements IPlayer, IAuto {
         return moviment;
     }
     
+    /**
+    * Determina si el joc està en la fase d'obertura.
+    * 
+    * @param gs Estat actual del joc.
+    * @return true si el joc està en la fase d'obertura, false en cas contrari.
+    */
     public boolean opening(GameStatus gs){
         
         if(PlayerType.PLAYER2 == gs.getCurrentPlayer() && gs.getScore(gs.getCurrentPlayer()) == 12){
@@ -144,6 +171,12 @@ public class PlayerID implements IPlayer, IAuto {
         return false;
     }
     
+    /**
+    * Realitza un moviment en el joc.
+    * 
+    * @param gs Estat actual del joc.
+    * @return El moviment seleccionat com a PlayerMove.
+    */
     @Override
     public PlayerMove move(GameStatus gs) {
         int millor_valor;
@@ -185,7 +218,14 @@ public class PlayerID implements IPlayer, IAuto {
     
     }
     
-    
+    /**
+    * Calcula el nombre de veïns que defensen una peça en una posició donada.
+    * 
+    * @param row Fila de la peça.
+    * @param col Columna de la peça.
+    * @param gs Estat actual del joc.
+    * @return Nombre de veïns que defensen la peça.
+    */
     public int numDefendingNeighbors(int row, int col, GameStatus gs) {
         
         PlayerType currentPlayer = gs.getCurrentPlayer();
@@ -228,7 +268,12 @@ public class PlayerID implements IPlayer, IAuto {
         return defensa;
     }
     
-    
+    /**
+    * Avalua l'estat actual del tauler.
+    * 
+    * @param gs Estat actual del joc.
+    * @return Valoració heurística de l'estat del tauler.
+    */
     public int heuristica(GameStatus gs){
         int numRows = 8;
         int numCols = 8;
@@ -392,11 +437,23 @@ public class PlayerID implements IPlayer, IAuto {
         return boardVal;
     }
     
+    /**
+    * Calcula un bonus basat en la posició central de la peça.
+    * 
+    * @param row Fila de la peça.
+    * @param col Columna de la peça.
+    * @return Puntuació de bonus per la posició de la peça.
+    */
     public int middleBonus(int row, int col) {
         
         return 100 - ((Math.abs(4 - col) + Math.abs(4 - row)) * 10);
     }
-    
+    /**
+    * Calcula un bonus per les peces situades a la fila de darrere.
+    * 
+    * @param row Fila de la peça.
+    * @return Puntuació de bonus per la posició de la peça.
+    */
     public int backBonus(int row) {
         if (maximizingPlayer == 1 && row == 0) {
             return 100;
@@ -406,7 +463,15 @@ public class PlayerID implements IPlayer, IAuto {
         }
         return 0;
     }
-    
+    /**
+    * Funció de l'algorisme Minimax per maximitzar el valor.
+    * 
+    * @param gs Estat actual del joc.
+    * @param alpha Valor alpha per a la poda Alpha-Beta.
+    * @param beta Valor beta per a la poda Alpha-Beta.
+    * @param depth Profunditat actual de la cerca.
+    * @return El valor màxim obtingut.
+    */
     public int maxVal(GameStatus gs, int alpha, int beta, int depth) {
         
         Date newDate = new Date();
@@ -438,7 +503,15 @@ public class PlayerID implements IPlayer, IAuto {
         return v;
         
     }
-    
+    /**
+    * Funció de l'algorisme Minimax per minimitzar el valor.
+    * 
+    * @param gs Estat actual del joc.
+    * @param alpha Valor alpha per a la poda Alpha-Beta.
+    * @param beta Valor beta per a la poda Alpha-Beta.
+    * @param depth Profunditat actual de la cerca.
+    * @return El valor mínim obtingut.
+    */
     public int minVal(GameStatus gs, int alpha, int beta, int depth){
         
         Date newDate = new Date();
