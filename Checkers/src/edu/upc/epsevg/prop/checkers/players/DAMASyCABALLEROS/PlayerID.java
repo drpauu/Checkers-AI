@@ -25,6 +25,11 @@ import java.util.*;
  */
 public class PlayerID implements IPlayer, IAuto {
 
+    public long timeLimit;
+    public long startTime;
+    public long currentTime;
+    public boolean outOfTime;
+    
     public int depth;
     public int profunditat_actual = 0;
     public int nodes_explorats = 0;
@@ -35,10 +40,13 @@ public class PlayerID implements IPlayer, IAuto {
     
     public int numAllyPieces, numAllyKings, numOppPieces, numOppKings;
     
+    public boolean acabat = false;
+    
 
-    public PlayerID(String name, int depth, int jugador1jugador2) {
+    public PlayerID(String name, int temps, int jugador1jugador2) {
         this.maximizingPlayer = jugador1jugador2;
-        this.depth = depth;
+        this.depth = 50;
+        this.timeLimit = temps;
         this.name = name;
     }
 
@@ -141,10 +149,17 @@ public class PlayerID implements IPlayer, IAuto {
         int millor_valor;
         List<Point> bestMove = new ArrayList<>();
         List<List<Point>> moviments = llista_moves(gs.getMoves());
+        List<List<Point>> millors;
+        
+        Date date = new Date();
+        startTime = date.getTime();
+        
+        game_init(gs);
    
         // es fa amb ids, i depth es el maxim que es pot baixar
         for(int fons = 0; fons < this.depth; fons++){
             millor_valor = Integer.MAX_VALUE;
+            millors = new ArrayList<>();
             for(List<Point> move : moviments){
                 GameStatus copia = new GameStatus(gs);
                 copia.movePiece(move);
@@ -152,10 +167,13 @@ public class PlayerID implements IPlayer, IAuto {
                 int max = maxVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
                 if (max == millor_valor) {
                     bestMove = move;
+                    millors.add(move);
                     millor_valor = max;
                     profunditat_actual = fons;
                 }
                 if (max < millor_valor) {
+                    millors.clear();
+                    millors.add(move);
                     bestMove = move;
                     millor_valor = max;
                     profunditat_actual = fons;
@@ -175,7 +193,7 @@ public class PlayerID implements IPlayer, IAuto {
         int defensa = 0;
         
         if(row == 0 || row == 7 || col == 0 || col == 7){
-            return 0;
+            return 2;
         }
 
         if(currentPlayer == PlayerType.PLAYER1){
@@ -279,7 +297,7 @@ public class PlayerID implements IPlayer, IAuto {
                 }
             }
 
-            boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 1000 * cntOppKings;
+            boardVal += 600 * ak + 1000 * ap - 600 * op - 1000 * ok;
         } else {
             for (int i = 0; i < numRows; i++) {
                 for (int j = 0; j < numCols; j++) {
@@ -296,7 +314,7 @@ public class PlayerID implements IPlayer, IAuto {
                                     if(i == 7 && j == 0) boardVal -= 200;
                                 }
                                 cntAllyPieces++;
-                                boardVal += numDefendingNeighbors(i, j, gs) * 25 
+                                boardVal += numDefendingNeighbors(i, j, gs) * 10 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -308,7 +326,7 @@ public class PlayerID implements IPlayer, IAuto {
                                     if(i == 2 && j == 7) boardVal -= 100;
                                 }
                                 cntOppPieces++;
-                                boardVal -= numDefendingNeighbors(i, j, gs) * 25 
+                                boardVal -= numDefendingNeighbors(i, j, gs) * 10 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -331,7 +349,7 @@ public class PlayerID implements IPlayer, IAuto {
                                     if(i == 2 && j == 7) boardVal += 100;
                                 }
                                 cntAllyPieces++;
-                                boardVal += numDefendingNeighbors(i, j, gs) * 25 
+                                boardVal += numDefendingNeighbors(i, j, gs) * 10 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -343,7 +361,7 @@ public class PlayerID implements IPlayer, IAuto {
                                     if(i == 7 && j == 0) boardVal += 200;
                                 }
                                 cntOppPieces++;
-                                boardVal -= numDefendingNeighbors(i, j, gs) * 25 
+                                boardVal -= numDefendingNeighbors(i, j, gs) * 10 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -391,6 +409,13 @@ public class PlayerID implements IPlayer, IAuto {
     
     public int maxVal(GameStatus gs, int alpha, int beta, int depth) {
         
+        Date newDate = new Date();
+        currentTime = newDate.getTime();
+        if ((currentTime - startTime) > timeLimit * 900) {
+            outOfTime = true;
+            return heuristica(gs);
+        }
+        
         List<List<Point>> moviments = llista_moves(gs.getMoves());
         
         if(moviments.isEmpty() || depth == this.depth){
@@ -415,6 +440,13 @@ public class PlayerID implements IPlayer, IAuto {
     }
     
     public int minVal(GameStatus gs, int alpha, int beta, int depth){
+        
+        Date newDate = new Date();
+        currentTime = newDate.getTime();
+        if ((currentTime - startTime) > timeLimit * 900) {
+            outOfTime = true;
+            return heuristica(gs);
+        }
         
         List<List<Point>> moviments = llista_moves(gs.getMoves());
         

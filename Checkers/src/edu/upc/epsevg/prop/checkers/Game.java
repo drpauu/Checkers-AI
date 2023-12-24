@@ -9,6 +9,7 @@ import edu.upc.epsevg.prop.checkers.players.DAMASyCABALLEROS.PlayerMiniMax;
 
 
 import javax.swing.SwingUtilities;
+import javax.swing.text.html.MinimalHTMLWriter;
 
 /**
  * Checkers: el joc de taula.
@@ -28,7 +29,9 @@ public class Game {
                 
                 //IPlayer player1 = new RandomPlayer("random");
 
-                IPlayer player2 = new PlayerID("DAMASyCABALLEROS", 8, 2);
+                IPlayer player2 = new PlayerID("DAMASyCABALLEROS",4,2);
+                
+                //IPlayer player2 = new PlayerMiniMax("DAMASyCABALLEROS",5,2);
 
                 Board board = new Board(player1 , player2, 1, false);
                 
