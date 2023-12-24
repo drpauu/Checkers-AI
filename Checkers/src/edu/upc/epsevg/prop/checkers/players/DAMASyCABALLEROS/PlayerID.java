@@ -149,19 +149,14 @@ public class PlayerID implements IPlayer, IAuto {
                     gs.getPos(4,7) == CellType.P2 && gs.getPos(6,7) == CellType.P2){
                 return true;
             }
-        } else {
-            if(gs.getPos(0,5) == CellType.P2 && gs.getPos(2, 5) == CellType.P2 && 
-                    gs.getPos(4,5) == CellType.P2 && gs.getPos(6,5) == CellType.P2 && 
-                    gs.getPos(1,6) == CellType.P2 && gs.getPos(3,6) == CellType.P2 && 
-                    gs.getPos(5,6) == CellType.P2 && gs.getPos(7,6) == CellType.P2 &&
-                    gs.getPos(0,7) == CellType.P2 && gs.getPos(2,7) == CellType.P2 && 
-                    gs.getPos(4,7) == CellType.P2 && gs.getPos(6,7) == CellType.P2){
-                return true;
-            }
         }
         return false;
     }
+<<<<<<< Updated upstream
         
+=======
+    
+>>>>>>> Stashed changes
     @Override
     public PlayerMove move(GameStatus gs) {
         timeout();
@@ -169,6 +164,7 @@ public class PlayerID implements IPlayer, IAuto {
         int millor_valor;
         List<Point> bestMove = new ArrayList<>();
         List<List<Point>> moviments = llista_moves(gs.getMoves());
+<<<<<<< Updated upstream
         List<MoveNode> peces = gs.getMoves();
         MoveNode node;
         
@@ -195,6 +191,26 @@ public class PlayerID implements IPlayer, IAuto {
                     bestMove = move;
                     millor_valor = min;
                     profunditat_actual = prof_max;
+=======
+   
+        // es fa amb ids, i depth es el maxim que es pot baixar
+        for(int fons = 0; fons < this.depth; fons++){
+            millor_valor = Integer.MAX_VALUE;
+            for(List<Point> move : moviments){
+                GameStatus copia = new GameStatus(gs);
+                copia.movePiece(move);
+                
+                int max = maxVal(copia, Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+                if (max == millor_valor) {
+                    bestMove = move;
+                    millor_valor = max;
+                    profunditat_actual = fons;
+                }
+                if (max < millor_valor) {
+                    bestMove = move;
+                    millor_valor = max;
+                    profunditat_actual = fons;
+>>>>>>> Stashed changes
                 }
             }
         }
@@ -253,7 +269,14 @@ public class PlayerID implements IPlayer, IAuto {
         int cntAllyKings = 0;
         int cntOppPieces = 0;
         int cntOppKings = 0;
+        boolean principi = false;
         
+        int ap = 0;
+        int ak = 0;
+        int op = 0;
+        int ok = 0;
+        
+        // valorar el punt de la partida
         for (int i = 0; i < numRows; i++) {
             for (int j = 0; j < numCols; j++) {
                 
@@ -262,83 +285,133 @@ public class PlayerID implements IPlayer, IAuto {
                 if(jugador == PlayerType.PLAYER1){
                     switch (peca) {
                         case P1:
-                            if(i == 7 && j == 0) boardVal -= 100;
-                            if(i == 7 && j == 4) boardVal += 100;
-                            if(i == 6 && j == 7) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 100;
-                            if(i == 7 && j == 6) boardVal += 100;
-                            cntAllyPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 10 
-                                    + backBonus(i)
-                                    + middleBonus(i, j);
+                            ap++;
                             break;
                         case P2:
-                            if(i == 4 && j == 7) boardVal += 100;
-                            if(i == 7 && j == 6) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 100;
-                            if(i == 6 && j == 7) boardVal += 100;
-                            cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 10 
-                                    + backBonus(i)
-                                    + middleBonus(i, j);
+                            op++;
                             break;
                         case P1Q:
-                            cntAllyKings++;
-                            boardVal += middleBonus(i,j);
+                            ak++;
                             break;
                         case P2Q:
-                            cntOppKings++;
-                            boardVal -= middleBonus(i,j);
+                            ok++;
                             break;
                     }
                 } else {
                     switch (peca) {
                         case P2:
-                            if(i == 0 && j == 7) boardVal -= 100;
-                            if(i == 4 && j == 7) boardVal += 100;
-                            if(i == 7 && j == 6) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 100;
-                            if(i == 6 && j == 7) boardVal += 100;
-                            cntAllyPieces++;
-                            boardVal += numDefendingNeighbors(i, j, gs) * 50 
-                                    + backBonus(i)
-                                    + middleBonus(i, j);
+                            ap++;
                             break;
                         case P1:
-                            if(i == 7 && j == 4) boardVal += 100;
-                            if(i == 6 && j == 7) boardVal += 100;
-                            if(i == 2 && j == 7) boardVal += 100;
-                            if(i == 7 && j == 6) boardVal += 150;
-                            cntOppPieces++;
-                            boardVal -= numDefendingNeighbors(i, j, gs) * 50 
-                                    + backBonus(i)
-                                    + middleBonus(i, j);
+                            op++;
                             break;
                         case P2Q:
-                            cntAllyKings++;
-                            boardVal += middleBonus(i,j);
+                            ak++;
                             break;
                         case P1Q:
-                            cntOppKings++;
-                            boardVal -= middleBonus(i,j);
+                            ok++;
                             break;
                     }
                 }
             }
         }
         
-        
-        
-        // forçar 1v1
-        if (numAllyPieces + numAllyKings > numOppPieces + numOppKings && cntOppPieces + cntOppKings != 0 && numOppPieces + numOppKings != 0 && numOppKings != 1) {
-            if ((cntAllyPieces + cntAllyKings)/(cntOppPieces + cntOppKings) > (numAllyPieces + numAllyKings)/(numOppPieces + numOppKings)) {
-                boardVal += 150;
-            } else {
-                boardVal -= 150;
-            }
+        if(ak + ap + op + ok >= 18){
+            principi = true;
         }
+        if(ak + ap + op + ok < 14){
+            // forçar 1v1
+            if (numAllyPieces + numAllyKings > numOppPieces + numOppKings && cntOppPieces + cntOppKings != 0 && numOppPieces + numOppKings != 0 && numOppKings != 1) {
+                if ((cntAllyPieces + cntAllyKings)/(cntOppPieces + cntOppKings) > (numAllyPieces + numAllyKings)/(numOppPieces + numOppKings)) {
+                    boardVal += 300;
+                } else {
+                    boardVal -= 300;
+                }
+            }
 
-        boardVal += 600 * cntAllyPieces + 1500 * cntAllyKings - 600 * cntOppPieces - 1500 * cntOppKings;
+            boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 1000 * cntOppKings;
+        } else {
+            for (int i = 0; i < numRows; i++) {
+                for (int j = 0; j < numCols; j++) {
+
+                    CellType peca = gs.getPos(i, j);
+                    PlayerType jugador = gs.getCurrentPlayer();
+                    if(jugador == PlayerType.PLAYER1){
+                        switch (peca) {
+                            case P1:
+                                if(principi){
+                                    if(i == 1 && j == 0) boardVal += 200;
+                                    if(i == 3 && j == 0) boardVal += 100;
+                                    if(i == 5 && j == 0) boardVal += 100;
+                                    if(i == 7 && j == 0) boardVal -= 200;
+                                }
+                                cntAllyPieces++;
+                                boardVal += numDefendingNeighbors(i, j, gs) * 25 
+                                        + backBonus(i)
+                                        + middleBonus(i, j);
+                                break;
+                            case P2:
+                                if(principi){
+                                    if(i == 0 && j == 7) boardVal += 200;
+                                    if(i == 4 && j == 7) boardVal -= 100;
+                                    if(i == 6 && j == 7) boardVal -= 200;
+                                    if(i == 2 && j == 7) boardVal -= 100;
+                                }
+                                cntOppPieces++;
+                                boardVal -= numDefendingNeighbors(i, j, gs) * 25 
+                                        + backBonus(i)
+                                        + middleBonus(i, j);
+                                break;
+                            case P1Q:
+                                cntAllyKings++;
+                                boardVal += middleBonus(i,j);
+                                break;
+                            case P2Q:
+                                cntOppKings++;
+                                boardVal -= middleBonus(i,j);
+                                break;
+                        }
+                    } else {
+                        switch (peca) {
+                            case P2:
+                                if(principi){
+                                    if(i == 0 && j == 7) boardVal -= 200;
+                                    if(i == 4 && j == 7) boardVal += 100;
+                                    if(i == 6 && j == 7) boardVal += 200;
+                                    if(i == 2 && j == 7) boardVal += 100;
+                                }
+                                cntAllyPieces++;
+                                boardVal += numDefendingNeighbors(i, j, gs) * 25 
+                                        + backBonus(i)
+                                        + middleBonus(i, j);
+                                break;
+                            case P1:
+                                if(principi){
+                                    if(i == 1 && j == 0) boardVal -= 200;
+                                    if(i == 3 && j == 0) boardVal -= 100;
+                                    if(i == 5 && j == 0) boardVal -= 100;
+                                    if(i == 7 && j == 0) boardVal += 200;
+                                }
+                                cntOppPieces++;
+                                boardVal -= numDefendingNeighbors(i, j, gs) * 25 
+                                        + backBonus(i)
+                                        + middleBonus(i, j);
+                                break;
+                            case P2Q:
+                                cntAllyKings++;
+                                boardVal += middleBonus(i,j);
+                                break;
+                            case P1Q:
+                                cntOppKings++;
+                                boardVal -= middleBonus(i,j);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            boardVal += 600 * cntAllyPieces + 1000 * cntAllyKings - 600 * cntOppPieces - 1000 * cntOppKings;
+        }
 
         if (cntOppPieces + cntOppKings == 0 && cntAllyPieces + cntAllyKings > 0) {
             boardVal = Integer.MAX_VALUE;
