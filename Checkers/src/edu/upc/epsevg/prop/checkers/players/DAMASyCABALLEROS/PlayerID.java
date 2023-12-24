@@ -314,7 +314,7 @@ public class PlayerID implements IPlayer, IAuto {
                                     if(i == 7 && j == 0) boardVal -= 200;
                                 }
                                 cntAllyPieces++;
-                                boardVal += numDefendingNeighbors(i, j, gs) * 10 
+                                boardVal += numDefendingNeighbors(i, j, gs) * 50 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -326,7 +326,7 @@ public class PlayerID implements IPlayer, IAuto {
                                     if(i == 2 && j == 7) boardVal -= 100;
                                 }
                                 cntOppPieces++;
-                                boardVal -= numDefendingNeighbors(i, j, gs) * 10 
+                                boardVal -= numDefendingNeighbors(i, j, gs) * 50 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -349,7 +349,7 @@ public class PlayerID implements IPlayer, IAuto {
                                     if(i == 2 && j == 7) boardVal += 100;
                                 }
                                 cntAllyPieces++;
-                                boardVal += numDefendingNeighbors(i, j, gs) * 10 
+                                boardVal += numDefendingNeighbors(i, j, gs) * 50 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -361,7 +361,7 @@ public class PlayerID implements IPlayer, IAuto {
                                     if(i == 7 && j == 0) boardVal += 200;
                                 }
                                 cntOppPieces++;
-                                boardVal -= numDefendingNeighbors(i, j, gs) * 10 
+                                boardVal -= numDefendingNeighbors(i, j, gs) * 50 
                                         + backBonus(i)
                                         + middleBonus(i, j);
                                 break;
@@ -427,7 +427,7 @@ public class PlayerID implements IPlayer, IAuto {
             
             GameStatus copia = new GameStatus(gs);
             copia.movePiece(move);
-            
+            this.nodes_explorats++;
             v = Math.max( v, minVal(copia, alpha, beta, depth + 1));
             
             if(v >= beta) return v;
@@ -459,7 +459,7 @@ public class PlayerID implements IPlayer, IAuto {
             
             GameStatus copia = new GameStatus(gs);
             copia.movePiece(move);
-            
+            this.nodes_explorats++;
             v = Math.min( v, maxVal(copia, alpha, beta, depth + 1));
             
             if(v <= alpha) return v;

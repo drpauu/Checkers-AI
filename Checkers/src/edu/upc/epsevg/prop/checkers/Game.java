@@ -25,13 +25,13 @@ public class Game {
             @Override
             public void run() {
                 
-                IPlayer player1 = new OnePiecePlayer(0);
+                //IPlayer player1 = new OnePiecePlayer(0);
                 
                 //IPlayer player1 = new RandomPlayer("random");
 
-                IPlayer player2 = new PlayerID("DAMASyCABALLEROS",4,2);
+                IPlayer player1 = new PlayerID("DAMASyCABALLEROS",1,1);
                 
-                //IPlayer player2 = new PlayerMiniMax("DAMASyCABALLEROS",5,2);
+                IPlayer player2 = new PlayerMiniMax("DAMASyCABALLEROS",5,2);
 
                 Board board = new Board(player1 , player2, 1, false);
                 
