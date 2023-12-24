@@ -149,9 +149,23 @@ public class PlayerMiniMax implements IPlayer, IAuto {
     @Override
     public PlayerMove move(GameStatus gs) {
         
+        nodes_explorats = 0;
         int millor_valor;
         List<Point> bestMove = new ArrayList<>();
         List<List<Point>> moviments = llista_moves(gs.getMoves());
+        
+        List<MoveNode> peces = gs.getMoves();
+        MoveNode node;
+        
+        game_init(gs);
+        
+        // primer moviment
+        if(opening(gs) && moviments.size() == 7){
+            bestMove.add(peces.get(1).getPoint());
+            node = peces.get(1).getChildren().get(1);
+            bestMove.add(node.getPoint());
+            return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX);
+        }
         
         //depth és la profunditat de l'arbre
         millor_valor = Integer.MIN_VALUE;
@@ -167,7 +181,7 @@ public class PlayerMiniMax implements IPlayer, IAuto {
             }
         }
         
-        return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX_IDS);
+        return new PlayerMove(bestMove, nodes_explorats, profunditat_actual, SearchType.MINIMAX);
     
     }
     
@@ -351,7 +365,7 @@ public class PlayerMiniMax implements IPlayer, IAuto {
             alpha = Math.max(alpha, v);
             
         }
-        
+        nodes_explorats++;
         return v;
         
     }
@@ -376,7 +390,7 @@ public class PlayerMiniMax implements IPlayer, IAuto {
             beta = Math.min(beta, v);
             
         }
-        
+        nodes_explorats++;
         return v;
         
     }
