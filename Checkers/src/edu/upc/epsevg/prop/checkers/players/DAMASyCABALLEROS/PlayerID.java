@@ -156,6 +156,7 @@ public class PlayerID implements IPlayer, IAuto {
     * @param gs Estat actual del joc.
     * @return true si el joc està en la fase d'obertura, false en cas contrari.
     */
+    // aquesta funcio al final no l'utilitzem
     public boolean opening(GameStatus gs){
         
         if(PlayerType.PLAYER2 == gs.getCurrentPlayer() && gs.getScore(gs.getCurrentPlayer()) == 12){
